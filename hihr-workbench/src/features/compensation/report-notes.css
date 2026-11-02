@@ -1,0 +1,25 @@
+:root { --report-note-hover: hsl(220 15% 96%); --report-note-border: hsl(218 12% 84%); --report-note-text: hsl(216 14% 14%); }
+
+/* Analysis notes are edited as one group, with no layout shift on hover. */
+.report-editable-notes { position: relative; transition: background-color 150ms ease; }
+.report-editable-notes:hover, .report-editable-notes:focus-within, .report-editable-notes[data-editing="true"] { background: var(--report-note-hover); }
+.report-editable-notes > .note:first-child > h3 { padding-right: 104px; }
+.report-editable-notes .note p { white-space: pre-wrap; }
+.report-note-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; opacity: 0; pointer-events: none; transition: opacity 150ms ease; }
+.report-editable-notes:hover .report-note-actions, .report-editable-notes:focus-within .report-note-actions { opacity: 1; pointer-events: auto; }
+.report-note-button { display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 3px 9px; border: 1px solid var(--report-note-border); border-radius: 6px; background: var(--report-white); color: var(--report-secondary); font-size: 12px; line-height: 20px; cursor: pointer; }
+.report-note-button:hover { background: var(--report-fill); color: var(--report-note-text); }
+.report-note-button:focus-visible, .report-note-field textarea:focus-visible { outline: 2px solid var(--report-primary); outline-offset: 2px; }
+.report-editable-notes[data-editing="true"] > :not(.report-note-editor) { display: none; }
+.report-note-editor { grid-column: 1/-1; display: grid; gap: 12px; min-width: 0; }
+.report-note-field { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+.report-note-field textarea { box-sizing: border-box; resize: vertical; min-height: 88px; width: 100%; padding: 9px 11px; border: 1px solid var(--report-note-border); border-radius: 6px; background: var(--report-white); color: var(--report-note-text); font: 14px/22px "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+.report-note-editor-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.report-note-button-primary { background: var(--report-note-text); color: var(--report-white); border-color: var(--report-note-text); }
+.report-note-button-primary:hover { background: color-mix(in srgb, var(--report-note-text) 88%, var(--report-white)); color: var(--report-white); }
+@media (hover: none) { .report-note-actions { opacity: 1; pointer-events: auto; } }
+@media (prefers-reduced-motion: reduce) { .report-editable-notes, .report-note-actions { transition: none; } }
+
+.distribution-report .analysis-notes { padding: 12px; }
+.final-report .report-editable-notes { padding-top: 40px; }
+.report-editable-notes .report-note-editor { text-align: left; }

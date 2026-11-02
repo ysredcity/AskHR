@@ -1,0 +1,136 @@
+/* Canonical product tokens and Markdown typography are materialized from @agent-ux/agent-ui. */
+@import "./agent-ui/immersive/theme.css";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply m-0 min-h-dvh antialiased bg-background text-foreground;
+  }
+
+  html {
+    @apply min-h-full font-sans;
+  }
+
+  #root {
+    @apply min-h-dvh;
+  }
+}
+
+/* Employee overview surfaces use the existing theme palette. */
+.employee-surface {
+  --surface-tint: var(--primary);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--surface-tint) 15%, var(--border));
+  border-radius: var(--radius-xl);
+  background: linear-gradient(115deg, var(--card) 5%, color-mix(in oklch, var(--surface-tint) 9%, var(--card)) 65%, color-mix(in oklch, var(--surface-tint) 19%, var(--card)));
+}
+.employee-surface--income, .employee-surface--welcome { --surface-tint: var(--info); }
+.employee-surface--growth { --surface-tint: var(--warning); }
+.employee-surface--performance { --surface-tint: var(--success); }
+.employee-art {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -36px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-25deg);
+  color: var(--surface-tint);
+  opacity: .35;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, black 45%);
+}
+.employee-art span { position: absolute; inset: 28px; border: 1px solid currentColor; border-radius: 50%; }
+.employee-art span:nth-child(2) { inset: 58px; }
+.employee-art span:nth-child(3) { inset: 88px; background: color-mix(in oklch, currentColor 16%, transparent); }
+.employee-art i { position: absolute; left: 60px; top: 50px; width: 34px; height: 34px; border-radius: 50%; background: currentColor; }
+.employee-surface--growth .employee-art span, .employee-surface--performance .employee-art span { border-radius: 22px; transform: rotate(15deg); }
+.employee-surface--welcome .employee-art { transform: translateY(-50%) rotate(25deg); }
+.employee-surface--leave .employee-art span { border-radius: 50% 50% 8% 8%; }
+@media (prefers-reduced-motion: reduce) { .employee-surface { scroll-behavior: auto; } }
+
+@keyframes briefing-enter {
+  from { opacity: 0; transform: translateX(var(--briefing-offset)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.briefing-transition[data-direction="1"] { --briefing-offset: 10px; animation: briefing-enter 220ms ease-out both; }
+.briefing-transition[data-direction="-1"] { --briefing-offset: -10px; animation: briefing-enter 220ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .briefing-transition { animation: none !important; } }
+
+
+.briefing-banner {
+  container-type: inline-size;
+  border-color: color-mix(in oklch, var(--primary) 14%, var(--border));
+  background: linear-gradient(110deg, color-mix(in oklch, var(--primary) 6%, var(--card)), color-mix(in oklch, var(--primary) 12%, var(--card)));
+}
+.briefing-copy { width: calc(100% - 144px); }
+@container (max-width: 560px) {
+  .briefing-copy { width: 100%; }
+  .briefing-illustration { opacity: .12; pointer-events: none; }
+}
+
+.hairline-briefing {
+  --hairline-plate: var(--card);
+  --hairline-hi: var(--foreground);
+  --hairline-edge: color-mix(in oklch, var(--foreground) 55%, var(--card));
+  --hairline-mid: color-mix(in oklch, var(--foreground) 32%, var(--card));
+  --hairline-lo: color-mix(in oklch, var(--foreground) 20%, var(--card));
+}
+
+.salary-app { background: radial-gradient(ellipse at 40% 0%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 55%), linear-gradient(var(--background-desktop), var(--background)); color: var(--foreground); }
+.salary-title { background: linear-gradient(110deg, var(--primary), var(--success), var(--warning)); background-clip: text; color: transparent; }
+.salary-report h1 { font-size: 24px; font-weight: 600; line-height: 1.5; margin-bottom: 24px; }
+.salary-report h2 { font-size: 16px; font-weight: 600; margin: 24px 0 12px; }
+.salary-report p, .salary-report li { font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.salary-report ol { list-style: decimal; padding-left: 20px; }
+
+.service-agent-badge {
+  --agent-blue: hsl(225 90% 64%);
+  --agent-violet: hsl(268 74% 59%);
+  --agent-glow: hsl(258 85% 72%);
+  --agent-base: hsl(249 53% 43%);
+  color: white;
+  border: 1px solid color-mix(in srgb, var(--agent-glow) 42%, transparent);
+  background: radial-gradient(ellipse at 8% 18%, var(--agent-blue), transparent 72%), radial-gradient(ellipse at 92% 82%, var(--agent-violet), transparent 76%), var(--agent-base);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 16%), 0 2px 9px color-mix(in srgb, var(--agent-violet) 20%, transparent);
+}
+
+/* Panorama layouts respond to the available work area, including an open Copilot. */
+.panorama-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.panorama-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.panorama-trend { position: relative; height: 172px; margin: 20px 0 0; border-bottom: 1px solid var(--border); }
+@container (max-width: 1000px) { .panorama-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container (max-width: 660px) {
+  .panorama-panels { grid-template-columns: minmax(0, 1fr); }
+  .panorama-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container (max-width: 380px) { .panorama-metrics { grid-template-columns: minmax(0, 1fr); } }
+.panorama-metrics[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@container (max-width: 800px) { .panorama-metrics[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 380px) { .panorama-metrics[data-count="4"] { grid-template-columns: minmax(0, 1fr); } }
+
+.panorama-insight {
+  --insight-lavender: hsl(252 75% 87%);
+  --insight-blue: hsl(216 90% 88%);
+  --insight-peach: hsl(24 85% 91%);
+  --insight-accent: hsl(247 30% 54%);
+  border-color: color-mix(in oklch, var(--insight-lavender) 48%, var(--border));
+  background:
+    radial-gradient(ellipse at 2% 8%, color-mix(in oklch, var(--insight-lavender) 52%, transparent), transparent 60%),
+    radial-gradient(ellipse at 92% 12%, color-mix(in oklch, var(--insight-blue) 58%, transparent), transparent 58%),
+    radial-gradient(ellipse at 58% 120%, color-mix(in oklch, var(--insight-peach) 45%, transparent), transparent 65%),
+    var(--card);
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--card) 85%, transparent), 0 3px 16px color-mix(in oklch, var(--insight-accent) 4%, transparent);
+}
+.panorama-insight-icon { color: var(--insight-accent); }
+.panorama-insight-dot { background: color-mix(in oklch, var(--insight-accent) 65%, transparent); }
+.dark .panorama-insight {
+  --insight-lavender: hsl(252 30% 24%);
+  --insight-blue: hsl(216 36% 22%);
+  --insight-peach: hsl(24 22% 22%);
+  --insight-accent: hsl(247 55% 77%);
+}

@@ -1,0 +1,589 @@
+import { Archive, House } from "lucide-react";
+import { AgentAvatar } from "./resource-visuals";
+import { useHR } from "@/features/hr/context";
+import { authorizedWorkspaces } from "@/features/hr/data";
+import { hrIcons } from "@/features/hr/icons";
+import { useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  ChevronRight,
+  IndentDecrease,
+  Moon,
+  MoreHorizontal,
+  Pencil,
+  Pin,
+  PinOff,
+  Sun,
+  X,
+} from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar as ShadcnSidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { IconButton } from "./icon-button";
+import type { ConversationScene } from "@/agent-ui/immersive/contracts";
+import type { AppConfig } from "@/agent-ui/immersive/contracts";
+
+export type Conversation = {
+  businessContext?: import("./composer").ContextItem[];
+  id: string;
+  title: string;
+  loading?: boolean;
+  unread?: boolean;
+  waitingForReply?: boolean;
+  approvalStatus?: "pending" | "approved" | "rejected";
+  initialMessage?: string;
+  expert?: string;
+  scene?: ConversationScene;
+};
+
+// 保留示例数据的具名导出，避免改变模板使用者的深层导入 API。
+// oxlint-disable-next-line react/only-export-components
+export const initialPinnedConversations: Conversation[] = [
+  // 审批态不在此手写：由场景末轮 awaitingApproval 派生（见 agent-shell 的 deriveApprovalStatus）
+  { id: "pinned-1", title: "如果用一个符号元素形容报表，应该用什么最形象" },
+];
+
+// 保留示例数据的具名导出，避免改变模板使用者的深层导入 API。
+// oxlint-disable-next-line react/only-export-components
+export const initialConversations: Conversation[] = [
+  { id: "chat-1", title: "帮我写个行业调研报告吧" },
+  { id: "chat-2", title: "你能读取飞书文档吗？", loading: true },
+  {
+    id: "chat-3",
+    title: "你是一个挑剔且专业的用户体验专家，帮我评审智能家居 App 的核心页面",
+    unread: true,
+  },
+  {
+    id: "chat-4",
+    title: "整理本周项目进展并生成周报",
+    waitingForReply: true,
+  },
+  {
+    id: "chat-5",
+    title: "下周去上海出差，帮我发起申请",
+    waitingForReply: true,
+  },
+];
+
+type AgentSidebarProps = {
+  config: Pick<AppConfig, "identity" | "navigation">;
+  activeConversationId: string | null;
+  className?: string;
+  darkMode: boolean;
+  drawer?: boolean;
+  onClose?: () => void;
+  onCollapse: () => void;
+  onDarkModeChange: (darkMode: boolean) => void;
+  onNewChat: () => void;
+  onPinnedChange: (conversation: Conversation, pinned: boolean) => void;
+  onRename: (conversation: Conversation) => void;
+  onSelectConversation: (conversation: Conversation) => void;
+  pinnedConversations: Conversation[];
+  conversations: Conversation[];
+  readConversationIds: Set<string>;
+};
+
+export type ConversationHistoryListProps = {
+  activeConversationId?: string | null;
+  conversations: Conversation[];
+  onPinnedChange?: (conversation: Conversation, pinned: boolean) => void;
+  onRename?: (conversation: Conversation) => void;
+  onSelectConversation: (conversation: Conversation) => void;
+  pinnedConversations: Conversation[];
+  readConversationIds?: Set<string>;
+  drawer?: boolean;
+};
+
+/** Shared collapsible group header used by conversation and Copilot content lists. */
+export function CollapsibleGroupHeader({
+  label,
+  open,
+  onOpenChange,
+  action,
+}: {
+  label: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 items-center">
+      <SidebarGroupLabel
+        render={<button type="button" />}
+        className="group/label min-w-0 flex-1 cursor-pointer rounded-[10px] px-2 text-sm font-normal text-sidebar-foreground hover:bg-sidebar-accent"
+        onClick={() => onOpenChange(!open)}
+      >
+        <span className="truncate">{label}</span>
+        <span className="grid size-4 shrink-0 place-items-center opacity-0 transition-opacity group-hover/label:opacity-100 group-focus-visible/label:opacity-100">
+          <ChevronRight
+            className={cn("size-3.5 transition-transform", open && "rotate-90")}
+          />
+        </span>
+      </SidebarGroupLabel>
+      {action}
+    </div>
+  );
+}
+
+export function AgentSidebar({
+  config,
+  activeConversationId,
+  className,
+  darkMode,
+  drawer = false,
+  onClose,
+  onCollapse,
+  onDarkModeChange,
+  onNewChat,
+  onPinnedChange,
+  onRename,
+  onSelectConversation,
+  pinnedConversations,
+  conversations,
+  readConversationIds,
+}: AgentSidebarProps) {
+  const { route, setRoute, archived, tasks } = useHR();
+  const visible = (items: Conversation[]) => items.filter(item => !archived.includes(item.id));
+  const [pinnedOpen, setPinnedOpen] = useState(true)
+  const [conversationsOpen, setConversationsOpen] = useState(true)
+
+  return (
+    <ShadcnSidebar
+      collapsible="none"
+      className={cn(
+        "h-full shrink-0 border-r border-sidebar-border [--sidebar-width:240px]",
+        drawer && "[--sidebar-width:320px] shadow-2xl",
+        className,
+      )}
+    >
+      <SidebarHeader
+        className={cn(
+          "h-13 flex-row items-center gap-2 p-3",
+          drawer && "h-14 px-4 pb-2 pt-5",
+        )}
+      >
+        {/* 产品身份与对话流里的智能体身份共用同一头像与名称 */}
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-sidebar-accent-foreground">
+          <AgentAvatar productAvatar={config.identity.avatar} className="size-7 [&_svg]:size-4" />
+          <span className={cn("truncate font-semibold", drawer ? "text-lg tracking-[-0.18px]" : "text-base")}>
+            {config.identity.name}
+          </span>
+        </div>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <IconButton
+                aria-label={drawer ? "关闭导航" : "收起导航"}
+                className={cn(
+                  "text-sidebar-accent-foreground hover:bg-sidebar-accent",
+                  drawer && "size-10 rounded-[10px] [&_svg]:size-6",
+                )}
+                onClick={drawer ? onClose : onCollapse}
+              >
+                {drawer ? <X /> : <IndentDecrease />}
+              </IconButton>
+            }
+          />
+          <TooltipContent side="right">{drawer ? "关闭导航" : "收起导航"}</TooltipContent>
+        </Tooltip>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup className={cn("gap-0.5 p-2", drawer && "gap-2 p-3")}>
+          <SidebarMenu>
+            <PrimaryMenuItem drawer={drawer} icon={House} label="首页 · 新对话" outline onClick={() => { onNewChat(); onClose?.(); }} />
+            {(["employee", "team", "organization", "tasks", "hall"] as const).filter(id => id === "tasks" || id === "hall" || authorizedWorkspaces.includes(id)).map(id => <PrimaryMenuItem key={id} count={id === "tasks" ? tasks.filter(task => !task.done).length : undefined} active={route === id || (id === "hall" && route === "compensation")} drawer={drawer} icon={hrIcons[id]} label={{employee: "个人全景", team: "团队全景", organization: "组织全景", tasks: "待办事项", hall: "服务大厅"}[id]} onClick={() => { setRoute(id); onClose?.(); }} />)}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <ConversationHistoryList
+          activeConversationId={route === "home" ? activeConversationId : null}
+          conversations={visible(conversations)}
+          onPinnedChange={onPinnedChange}
+          onRename={onRename}
+          onSelectConversation={onSelectConversation}
+          pinnedConversations={visible(pinnedConversations)}
+          readConversationIds={readConversationIds}
+          drawer={drawer}
+          pinnedOpen={pinnedOpen}
+          onPinnedOpenChange={setPinnedOpen}
+          conversationsOpen={conversationsOpen}
+          onConversationsOpenChange={setConversationsOpen}
+        />
+      </SidebarContent>
+
+      <SidebarFooter className={cn("flex-row justify-end p-3", drawer && "p-4")}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <IconButton
+                aria-label={darkMode ? "切换到浅色模式" : "切换到深色模式"}
+                className={cn(
+                  "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  drawer && "size-10 rounded-[10px] [&_svg]:size-5",
+                )}
+                onClick={() => onDarkModeChange(!darkMode)}
+              >
+                {darkMode ? <Sun /> : <Moon />}
+              </IconButton>
+            }
+          />
+          <TooltipContent side="top">
+            {darkMode ? "浅色模式" : "深色模式"}
+          </TooltipContent>
+        </Tooltip>
+      </SidebarFooter>
+
+    </ShadcnSidebar>
+  )
+}
+
+/** 与 Agent 左侧导航共用的历史对话分组列表。 */
+export function ConversationHistoryList({
+  activeConversationId = null,
+  conversations,
+  onPinnedChange = () => undefined,
+  onRename = () => undefined,
+  onSelectConversation,
+  pinnedConversations,
+  readConversationIds = new Set(),
+  drawer = false,
+  pinnedOpen: controlledPinnedOpen,
+  onPinnedOpenChange,
+  conversationsOpen: controlledConversationsOpen,
+  onConversationsOpenChange,
+}: ConversationHistoryListProps & {
+  pinnedOpen?: boolean;
+  onPinnedOpenChange?: (open: boolean) => void;
+  conversationsOpen?: boolean;
+  onConversationsOpenChange?: (open: boolean) => void;
+}) {
+  const [uncontrolledPinnedOpen, setUncontrolledPinnedOpen] = useState(true);
+  const [uncontrolledConversationsOpen, setUncontrolledConversationsOpen] =
+    useState(true);
+  const pinnedOpen = controlledPinnedOpen ?? uncontrolledPinnedOpen;
+  const conversationsOpen =
+    controlledConversationsOpen ?? uncontrolledConversationsOpen;
+  const setPinnedOpen = onPinnedOpenChange ?? setUncontrolledPinnedOpen;
+  const setConversationsOpen =
+    onConversationsOpenChange ?? setUncontrolledConversationsOpen;
+
+  return (
+    <div className="flex min-h-0 w-full flex-col">
+      {pinnedConversations.length > 0 && (
+        <ConversationGroup
+          drawer={drawer}
+          label="已置顶"
+          open={pinnedOpen}
+          onOpenChange={setPinnedOpen}
+          conversations={pinnedConversations}
+          onPinnedChange={onPinnedChange}
+          onRename={onRename}
+          onSelectConversation={onSelectConversation}
+          activeConversationId={activeConversationId}
+          readConversationIds={readConversationIds}
+          pinned
+        />
+      )}
+      {conversations.length > 0 && (
+        <ConversationGroup
+          drawer={drawer}
+          label="对话"
+          open={conversationsOpen}
+          onOpenChange={setConversationsOpen}
+          conversations={conversations}
+          onPinnedChange={onPinnedChange}
+          onRename={onRename}
+          onSelectConversation={onSelectConversation}
+          activeConversationId={activeConversationId}
+          readConversationIds={readConversationIds}
+        />
+      )}
+    </div>
+  );
+}
+
+function PrimaryMenuItem({
+  drawer = false,
+  icon: Icon,
+  label,
+  onClick,
+  active = false,
+  outline = false,
+  count,
+}: {
+  drawer?: boolean
+  icon: ComponentType<{ className?: string }>
+  label: string
+  onClick?: () => void
+  active?: boolean
+  outline?: boolean
+  count?: number
+}) {
+  return (
+    <SidebarMenuItem className={cn(drawer && "mb-0.5")}>
+      <SidebarMenuButton
+        isActive={active}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "h-9 rounded-[10px] px-2 text-sm font-medium text-foreground hover:text-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-foreground",
+          outline && "border border-sidebar-border bg-card font-medium shadow-xs hover:bg-sidebar-accent",
+          drawer && outline && "mb-2 h-12 justify-center rounded-full",
+
+          drawer && "h-10 px-2.5 text-base [&_svg]:size-[18px]",
+
+        )}
+        onClick={onClick}
+      >
+        <Icon />
+        <span className="px-1.5">{label}</span>
+        {count != null && count > 0 && <span aria-label={`${count} 项待处理`} className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium leading-none text-primary-foreground">{count > 99 ? "99+" : count}</span>}
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  )
+}
+
+function ConversationGroup({
+  activeConversationId,
+  conversations: items,
+  drawer,
+  label,
+  onOpenChange,
+  onPinnedChange,
+  onRename,
+  onSelectConversation,
+  readConversationIds,
+  open,
+  pinned = false,
+}: {
+  activeConversationId: string | null;
+  conversations: Conversation[];
+  drawer: boolean;
+  label: string;
+  onOpenChange: (open: boolean) => void;
+  onPinnedChange: (conversation: Conversation, pinned: boolean) => void;
+  onRename: (conversation: Conversation) => void;
+  onSelectConversation: (conversation: Conversation) => void;
+  readConversationIds: Set<string>;
+  open: boolean;
+  pinned?: boolean;
+}) {
+  return (
+    <SidebarGroup
+      className={cn("group/conversation-group gap-0.5 p-2", drawer && "p-3")}
+    >
+      <CollapsibleGroupHeader
+        label={label}
+        open={open}
+        onOpenChange={onOpenChange}
+      />
+      {open && (
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {items.map((conversation) => (
+              <ConversationMenuItem
+                key={conversation.id}
+                conversation={conversation}
+                drawer={drawer}
+                pinned={pinned}
+                onPinnedChange={onPinnedChange}
+                onRename={onRename}
+                onSelectConversation={onSelectConversation}
+                active={conversation.id === activeConversationId}
+                unread={Boolean(
+                  conversation.unread &&
+                  !readConversationIds.has(conversation.id),
+                )}
+              />
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      )}
+    </SidebarGroup>
+  );
+}
+
+function ConversationMenuItem({
+  active,
+  conversation,
+  drawer,
+  onPinnedChange,
+  onRename,
+  onSelectConversation,
+  pinned,
+  unread,
+}: {
+  active: boolean;
+  conversation: Conversation;
+  drawer: boolean;
+  onPinnedChange: (conversation: Conversation, pinned: boolean) => void;
+  onRename: (conversation: Conversation) => void;
+  onSelectConversation: (conversation: Conversation) => void;
+  pinned: boolean;
+  unread: boolean;
+}) {
+  const { setArchived } = useHR();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [titleTruncated, setTitleTruncated] = useState(false);
+  const titleRef = useRef<HTMLSpanElement>(null);
+
+  const checkTitleTruncation = () => {
+    const title = titleRef.current;
+    setTitleTruncated(Boolean(title && title.scrollWidth > title.clientWidth));
+  };
+
+  return (
+    <SidebarMenuItem>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <SidebarMenuButton
+              isActive={active}
+              className={cn(
+                "h-8 rounded-[10px] px-2 pr-7 text-sm font-normal text-foreground hover:text-foreground data-active:bg-sidebar-accent data-active:font-normal data-active:text-foreground",
+                (conversation.waitingForReply ||
+                  conversation.approvalStatus === "pending") &&
+                  "pr-[76px]",
+                drawer && "h-10 px-1 pr-9 text-base",
+                drawer &&
+                  (conversation.waitingForReply ||
+                    conversation.approvalStatus === "pending") &&
+                  "pr-[88px]",
+              )}
+              onFocus={checkTitleTruncation}
+              onPointerEnter={checkTitleTruncation}
+              onClick={() => onSelectConversation(conversation)}
+            >
+              <span
+                ref={titleRef}
+                className={cn("truncate px-1", drawer && "px-1.5")}
+              >
+                {conversation.title}
+              </span>
+            </SidebarMenuButton>
+          }
+        />
+        {titleTruncated && (
+          <TooltipContent side="right" className="max-w-72">
+            {conversation.title}
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      {conversation.loading && (
+        <SidebarMenuBadge
+          className={cn(
+            "right-2 top-1.5 z-10 transition-[right] group-hover/menu-item:right-8",
+            drawer && "top-2.5 group-hover/menu-item:right-11",
+          )}
+        >
+          <Spinner className={cn("size-4", drawer && "size-[18px]")} />
+        </SidebarMenuBadge>
+      )}
+      {unread && (
+        <SidebarMenuBadge
+          className={cn(
+            "right-2 top-2 z-10 transition-opacity group-hover/menu-item:opacity-0",
+            drawer && "top-3",
+          )}
+        >
+          <span className="size-2 rounded-full bg-success" />
+        </SidebarMenuBadge>
+      )}
+      {conversation.approvalStatus === "pending" && (
+        <SidebarMenuBadge
+          className={cn(
+            "right-2 top-1.5 h-5 rounded-md bg-destructive-bg px-1.5 text-xs font-normal text-destructive-foreground! transition-opacity group-hover/menu-item:opacity-0",
+            drawer && "top-2.5 px-2 text-sm",
+          )}
+        >
+          等待批准
+        </SidebarMenuBadge>
+      )}
+      {conversation.waitingForReply &&
+        conversation.approvalStatus !== "pending" && (
+          <SidebarMenuBadge
+            className={cn(
+              "right-2 top-1.5 h-5 rounded-md bg-warning/10 px-1.5 text-xs font-normal text-warning-foreground! transition-opacity group-hover/menu-item:opacity-0",
+              drawer && "top-2.5 px-2 text-sm",
+            )}
+          >
+            等待回复
+          </SidebarMenuBadge>
+        )}
+
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DropdownMenuTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label={`${conversation.title}的更多操作`}
+                    className={cn(
+                      "absolute right-1 top-1.5 z-10 grid size-5 place-items-center rounded-md bg-sidebar-accent text-sidebar-accent-foreground opacity-0 outline-none transition-opacity hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring group-hover/menu-item:opacity-100",
+                      menuOpen && "opacity-100",
+                      drawer && "right-2 top-2 size-6",
+                    )}
+                  >
+                    <MoreHorizontal className="size-4" />
+                  </button>
+                }
+              />
+            }
+          />
+          <TooltipContent side="top">更多选项</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent
+          align="end"
+          side="bottom"
+          sideOffset={4}
+          className="w-40"
+        >
+          <DropdownMenuItem onClick={() => onRename(conversation)}>
+            <Pencil />
+            重命名
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => onPinnedChange(conversation, !pinned)}
+          >
+            {pinned ? <PinOff /> : <Pin />}
+            {pinned ? "取消置顶" : "置顶"}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setArchived((a) => [...a, conversation.id])}
+          >
+            <Archive />
+            归档对话
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </SidebarMenuItem>
+  );
+}

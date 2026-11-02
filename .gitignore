@@ -1,0 +1,12 @@
+.DS_Store
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/preview/
+**/hihr-static/
+**/.workbuddy/
+**/.wbapp_*
+**/*.tsbuildinfo
+**/*.log
+**/.env
+**/.env.*

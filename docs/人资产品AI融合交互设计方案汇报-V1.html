@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人资产品 AI 融合交互设计方案 · 第一版汇报稿</title>
+<style>
+  :root {
+    --ink: #1d1d1f;
+    --ink-2: rgba(29, 29, 31, .66);
+    --ink-3: rgba(29, 29, 31, .46);
+    --line: rgba(29, 29, 31, .10);
+    --accent: #00786f;
+    --accent-soft: #009689;
+    --glass-bg: rgba(255, 255, 255, .38);
+    --glass-border: rgba(255, 255, 255, .72);
+    --ease: cubic-bezier(.22, .8, .24, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: #eef1f4;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- 环境光背景 ---------- */
+  .ambient { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .75; transition: transform 1.6s var(--ease); }
+  .blob.a { width: 56vw; height: 56vw; left: -12vw; top: -18vw; background: radial-gradient(circle, #b9e6df 0%, rgba(185,230,223,0) 70%); }
+  .blob.b { width: 50vw; height: 50vw; right: -14vw; top: 8vh; background: radial-gradient(circle, #c9d7f5 0%, rgba(201,215,245,0) 70%); }
+  .blob.c { width: 44vw; height: 44vw; left: 30vw; bottom: -22vw; background: radial-gradient(circle, #e6dcf2 0%, rgba(230,220,242,0) 70%); }
+
+  /* ---------- 16:9 舞台 ---------- */
+  .viewport { position: fixed; inset: 0; z-index: 1; }
+  .stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 72px 140px 130px;
+    display: flex; flex-direction: column;
+    opacity: 0; visibility: hidden;
+    transform: translateY(24px) scale(.985);
+    transition: opacity .7s var(--ease), transform .8s var(--ease), visibility 0s linear .8s;
+  }
+  .slide.active { opacity: 1; visibility: visible; transform: none; transition: opacity .7s var(--ease), transform .8s var(--ease), visibility 0s; }
+  .slide.active .rise { animation: rise .9s var(--ease) both; }
+  .slide.active .rise.d1 { animation-delay: .08s; }
+  .slide.active .rise.d2 { animation-delay: .16s; }
+  .slide.active .rise.d3 { animation-delay: .24s; }
+  .slide.active .rise.d4 { animation-delay: .32s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- 液态玻璃 ---------- */
+  .glass {
+    position: relative;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.9),
+      inset 0 -1px 0 rgba(255,255,255,.25),
+      0 1px 2px rgba(20, 30, 50, .04),
+      0 24px 60px -20px rgba(20, 30, 60, .14);
+  }
+  .glass::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(160deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 70%, rgba(255,255,255,.18) 100%);
+  }
+
+  /* ---------- 页头：章节 + 页标题 ---------- */
+  .ph { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .chapter {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 12px 30px; border-radius: 999px;
+    font-size: 30px; font-weight: 600; color: var(--accent);
+  }
+  .chapter .no {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent); color: #fff; font-size: 24px; font-weight: 600;
+  }
+  .pt { font-size: 80px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+  .pt .num { color: var(--accent); margin-right: 18px; font-variant-numeric: tabular-nums; }
+  .ph-row { display: flex; align-items: center; gap: 28px; }
+
+  /* ---------- 通用文本层级 ---------- */
+  .weak { font-size: 26px; line-height: 1.65; color: var(--ink-3); }
+  .body { font-size: 28px; line-height: 1.65; color: var(--ink-2); }
+  .key { font-size: 50px; line-height: 1.38; font-weight: 700; letter-spacing: -.01em; }
+  .key em { font-style: normal; color: var(--accent); }
+  .hl { color: var(--ink); font-weight: 600; }
+  .label { font-size: 20px; font-weight: 600; letter-spacing: .16em; color: var(--ink-3); }
+
+  /* ---------- 封面 ---------- */
+  .cover { display: grid; grid-template-columns: 1fr; align-items: center; flex: 1; padding-bottom: 20px; }
+  .cover h1 { font-size: 120px; line-height: 1.12; font-weight: 700; letter-spacing: -.02em; }
+  .cover h1 span { display: block; white-space: nowrap; }
+  .cover .quote { margin-top: 48px; padding-left: 28px; border-left: 3px solid rgba(0,120,111,.35); max-width: 900px; }
+  /* ---------- 1. 行业发展 ---------- */
+  .trend-top { margin-top: 36px; }
+  .trend-top .key { font-size: 26px; line-height: 1.65; color: var(--accent); font-weight: 650; letter-spacing: normal; }
+  .trends { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 30px; }
+  .trend { border-radius: 30px; padding: 26px 32px 32px; display: flex; flex-direction: column; }
+  .trend .t { font-size: 34px; font-weight: 700; letter-spacing: -.01em; }
+  .trend .d { font-size: 20px; line-height: 1.6; color: var(--ink-3); margin-top: 12px; }
+  .trend-art { height: 208px; position: relative; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; isolation: isolate; }
+  .trend-art::before { content: ""; position: absolute; width: 230px; height: 130px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,150,137,.16), rgba(120,158,220,.06) 55%, transparent 72%); filter: blur(20px); z-index: -1; }
+  .art-pane { position: absolute; border-radius: 22px; background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(255,255,255,.2)); border: 1px solid rgba(255,255,255,.9); box-shadow: inset 0 1px 1px #fff, inset 0 -1px 1px rgba(255,255,255,.4), 0 16px 32px -12px rgba(30,58,84,.22); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }
+  .art-pane svg { width: 100%; height: 100%; overflow: visible; }
+  .art-line { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .art-muted { stroke: rgba(0,120,111,.24); }
+  .art-chat { width: 112px; height: 80px; left: 70px; top: 28px; transform: rotate(-8deg); }
+  .art-task { width: 150px; height: 112px; left: 206px; top: 76px; transform: rotate(6deg); }
+  .art-dialog { width: 128px; height: 100px; left: 52px; top: 74px; transform: rotate(-7deg); z-index: 2; }
+  .art-window { width: 214px; height: 140px; left: 178px; top: 25px; transform: rotate(5deg); }
+  .art-flow { width: 284px; height: 130px; top: 36px; transform: rotate(-3deg); }
+  .art-check { width: 60px; height: 60px; border-radius: 50%; left: 322px; top: 128px; transform: rotate(8deg); }
+
+  /* ---------- 2. 内部对产品形态的要求 ---------- */
+  .shift { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; margin-top: 36px; }
+  .shift .panel { border-radius: 36px; height: 236px; padding: 26px 40px 30px; display: flex; flex-direction: column; justify-content: space-between; }
+  .shift .panel svg { width: 100%; height: 110px; }
+  .shift .cap { font-size: 30px; font-weight: 700; }
+  .shift .cap small { display: block; font-size: 21px; font-weight: 500; color: var(--ink-3); margin-top: 6px; }
+  .arrow-mid { display: flex; justify-content: center; }
+  .conclusion { margin-top: auto; }
+
+  /* ---------- 3. 当前问题 ---------- */
+  .problems { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; flex: 1; max-height: 470px; }
+  .problem { border-radius: 38px; padding: 40px 42px; display: flex; flex-direction: column; }
+  .problem .ico { width: 84px; height: 84px; border-radius: 24px; display: flex; align-items: center; justify-content: center; }
+  .problem .ico svg { width: 46px; height: 46px; }
+  .problem .k { font-size: 44px; line-height: 1.32; font-weight: 700; letter-spacing: -.01em; margin-top: 34px; }
+  .problem .weak { font-size: 22px; margin-top: auto; padding-top: 24px; }
+  .footnote { margin-top: 34px; }
+
+  /* ---------- 二、调整方向与目标 ---------- */
+  .dirs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 36px; flex: 1; }
+  .dir { border-radius: 38px; padding: 36px 40px; display: flex; flex-direction: column; }
+  .dir .k { font-size: 46px; font-weight: 700; letter-spacing: -.015em; margin-top: 12px; }
+  .dir .weak { font-size: 21px; margin-top: 12px; }
+  .dir .goal { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line); }
+  .dir .goal p { font-size: 30px; line-height: 1.5; font-weight: 600; color: var(--ink); margin-top: 12px; }
+  .dir .goal .label { color: var(--accent); }
+
+  .directions-slide { padding-bottom: 72px; }
+  .directions-slide .dirs { margin-top: 24px; min-height: 0; }
+  .directions-slide .dir { padding: 28px 32px; }
+  .directions-slide .dir .k { font-size: 42px; }
+  .directions-slide .dir .weak { font-size: 20px; }
+  .directions-slide .dir .goal { padding-top: 20px; }
+  .directions-slide .dir .goal p { font-size: 26px; margin-top: 10px; }
+  .asset-context { flex-shrink: 0; border-radius: 28px; margin-top: 24px; padding: 20px 32px; }
+  .asset-context h3 { color: var(--accent); font-size: 30px; font-weight: 650; line-height: 1.4; }
+  .asset-context p { color: var(--ink-2); font-size: 22px; line-height: 1.6; margin-top: 8px; }
+
+  /* ---------- 三、交互方案 ---------- */
+  .demo-pill { display: inline-flex; align-items: center; gap: 10px; padding: 10px 22px; border-radius: 999px; font-size: 22px; font-weight: 600; color: var(--accent); }
+  .demo-pill::after { content: ""; order: -1; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-soft); box-shadow: 0 0 0 5px rgba(0,150,137,.15); }
+  .scene-cols { display: grid; grid-template-columns: 1fr 90px 1fr; margin-top: 44px; flex: 1; align-items: stretch; }
+  .col { border-radius: 40px; padding: 38px 44px; display: flex; flex-direction: column; }
+  .col-h { font-size: 32px; font-weight: 700; display: flex; align-items: center; gap: 14px; }
+  .col.problem-col { background: rgba(255,255,255,.22); }
+  .col.problem-col .col-h { color: var(--ink-2); }
+  .col.idea-col .col-h { color: var(--accent); }
+  .items { display: grid; grid-template-rows: repeat(3, 1fr); flex: 1; margin-top: 30px; gap: 22px; align-items: start; }
+  .item { display: grid; grid-template-columns: 52px 1fr; column-gap: 8px; }
+  .item .n { font-size: 26px; font-weight: 600; color: var(--ink-3); font-variant-numeric: tabular-nums; padding-top: 6px; }
+  .item .t { font-size: 38px; font-weight: 700; letter-spacing: -.01em; }
+  .item .weak { font-size: 22px; line-height: 1.55; margin-top: 6px; }
+  .problem-col .item .t { color: var(--ink-2); font-size: 34px; }
+  .idea-col .item .n { color: var(--accent); }
+  .col-arrow { display: flex; align-items: center; justify-content: center; }
+
+  /* ---------- 章节封面 ---------- */
+  .section-cover { flex: 1; display: flex; align-items: center; padding-bottom: 40px; }
+  .sc-title { font-size: 136px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+  .sc-title .accent-no { color: var(--accent); }
+
+  /* ---------- 翻页控件 ---------- */
+  .hud { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 5; display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; transition: opacity .3s; }
+  .hud.idle { opacity: 0; transition: opacity .6s; }
+  .hud button { appearance: none; border: 0; background: transparent; cursor: pointer; color: var(--ink-2); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background .2s, color .2s; }
+  .hud button:hover { background: rgba(255,255,255,.7); color: var(--ink); }
+  .hud button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .hud button:disabled { opacity: .3; cursor: default; background: transparent; }
+  .dots { display: flex; gap: 2px; padding: 0 6px; }
+  .dots button { width: 22px; height: 28px; }
+  .dots button::after { content: ""; width: 7px; height: 7px; border-radius: 4px; background: rgba(29,29,31,.22); transition: width .35s var(--ease), background .35s; }
+  .dots button[aria-current="true"] { width: 34px; }
+  .dots button[aria-current="true"]::after { width: 22px; background: var(--accent); }
+  .dots button:hover { background: transparent; }
+  .counter { font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; padding: 0 10px 0 4px; min-width: 52px; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide.active, .blob { transition: opacity .2s linear, visibility 0s; transform: none !important; }
+    .slide.active .rise { animation: none; }
+  }
+  @media print { .hud, .ambient { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true"><div class="blob a"></div><div class="blob b"></div><div class="blob c"></div></div>
+
+<main class="viewport">
+  <div class="stage" id="stage">
+
+    <!-- 封面 -->
+    <section class="slide" aria-label="封面">
+      <div class="cover">
+        <div>
+          <h1 class="rise d1"><span>人资产品 AI 融合</span><span>交互设计方案</span></h1>
+          <p class="quote body rise d2">以薪酬智查与 HR 门户为典型场景，探索统一的交互模式，带动人资业务逐步迁入 AI 原生的新 HR 门户。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 章节封面：一、背景与问题 -->
+    <section class="slide section-slide" aria-label="一、背景与问题">
+      <div class="section-cover">
+        <h2 class="sc-title rise"><span class="accent-no">一、</span>背景与问题</h2>
+      </div>
+    </section>
+
+    <!-- 一 · 1. 当前存在的问题 -->
+    <section class="slide" aria-label="一、背景与问题 · 1. 当前存在的问题">
+      <header class="ph rise">
+        <div class="chapter glass">一、背景与问题</div>
+        <h2 class="pt"><span class="num">1.</span>当前存在的问题</h2>
+      </header>
+      <p class="body rise d1" style="margin-top:32px;">当前人资应用与智能体持续增加，但在产品定位、协同体验和能力扩展方面仍存在以下问题：</p>
+      <div class="problems">
+        <div class="problem glass rise d2">
+          <div class="ico glass" aria-hidden="true"><svg viewBox="0 0 52 52" fill="none" stroke="#00786f" stroke-width="3" stroke-linecap="round"><rect x="6" y="6" width="14" height="14" rx="4"/><rect x="32" y="6" width="14" height="14" rx="4"/><rect x="6" y="32" width="14" height="14" rx="4"/><circle cx="39" cy="39" r="7"/><path d="M44 44 L49 49"/></svg></div>
+          <div class="k">应用边界不清，<br>服务入口难找</div>
+          <p class="weak">各类应用众多，定位与功能边界不够清晰，AI 功能与传统功能又相对独立，进一步增加了用户寻找服务、选择入口的成本。</p>
+        </div>
+        <div class="problem glass rise d3">
+          <div class="ico glass" aria-hidden="true"><svg viewBox="0 0 52 52" fill="none" stroke="#00786f" stroke-width="3" stroke-linecap="round"><path d="M22 16 l-6 -6 a8 8 0 0 0 -11 11 l6 6"/><path d="M30 36 l6 6 a8 8 0 0 0 11 -11 l-6 -6"/><path d="M20 32 L16 36 M32 20 L36 16 M26 8 V12 M8 26 H12 M40 26 H44 M26 40 V44"/></svg></div>
+          <div class="k">智能体场景孤立，<br>协同衔接不足</div>
+          <p class="weak">已建智能体多聚焦有限场景，交互形态差异较大，彼此缺少上下文衔接，也难以通过统一 AI 入口串联调用。</p>
+        </div>
+        <div class="problem glass rise d4">
+          <div class="ico glass" aria-hidden="true"><svg viewBox="0 0 52 52" fill="none" stroke="#00786f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12 a6 6 0 0 1 6 -6 h24 a6 6 0 0 1 6 6 v14 a6 6 0 0 1 -6 6 h-14 l-10 8 v-8 a6 6 0 0 1 -6 -6 z"/><path d="M34 40 h12 M34 46 h8"/></svg></div>
+          <div class="k">AskHR 偏重问答，<br>复杂业务扩展受限</div>
+          <p class="weak">现有交互承载与扩展能力相对有限，办事场景较依赖逐项定制，复杂业务难以通过通用模式接入和复用。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 一 · 2. 行业发展 -->
+    <section class="slide" aria-label="一、背景与问题 · 2. 行业发展">
+      <header class="ph rise">
+        <div class="chapter glass">一、背景与问题</div>
+        <h2 class="pt"><span class="num">2.</span>行业发展</h2>
+      </header>
+      <div class="trend-top">
+        <div class="rise d1">
+          <p class="weak">智能体产品及交互形态仍在快速变化。从主流产品实践与设计指南看，</p>
+          <p class="key" style="margin-top:10px;"><em>大的交互逻辑正逐步趋同：</em>围绕用户目标，将对话、工作对象与执行反馈组织成连续的任务体验。</p>
+          <p class="weak" style="margin-top:10px;">这是对行业趋势的判断，具体布局仍应随业务任务变化。</p>
+        </div>
+      </div>
+      <div class="trends">
+        <div class="trend glass rise d2">
+          <div class="trend-art" aria-hidden="true">
+            <div class="art-pane art-chat"><svg viewBox="0 0 112 80"><g class="art-line"><path d="M26 25h60M26 40h40"/><path class="art-muted" d="M26 55h25"/></g></svg></div>
+            <div class="art-pane art-task"><svg viewBox="0 0 150 112"><g class="art-line"><path d="m24 32 5 5 9-11M50 31h70M24 58h12M50 58h70M24 84h12"/><path class="art-muted" d="M50 84h46"/></g></svg></div>
+          </div>
+          <div class="t">从问答走向任务协作</div>
+          <p class="d">智能体逐步承担理解目标、调用工具和推进任务的职责，设计重点也延伸到过程透明、用户控制与上下文延续。</p>
+        </div>
+        <div class="trend glass rise d3">
+          <div class="trend-art" aria-hidden="true">
+            <div class="art-pane art-window"><svg viewBox="0 0 214 140"><g class="art-line"><path class="art-muted" d="M18 30h178"/><path d="M25 17h2m9 0h2m9 0h2"/><rect x="22" y="47" width="45" height="70" rx="8" class="art-muted"/><path d="M89 106V85m26 21V66m26 40V78m26 28V54"/></g></svg></div>
+            <div class="art-pane art-dialog"><svg viewBox="0 0 128 100"><g class="art-line"><path d="M24 28h76M24 45h50"/><path class="art-muted" d="M24 62h59"/><path d="M78 79h25m-8-8 8 8-8 8"/></g></svg></div>
+          </div>
+          <div class="t">对话与可操作界面融合</div>
+          <p class="d">Claude Artifacts 将对话产出延伸为可交互应用，并允许在应用内嵌入 AI 能力，体现了对话与工作对象相互衔接的方向。</p>
+        </div>
+        <div class="trend glass rise d4">
+          <div class="trend-art" aria-hidden="true">
+            <div class="art-pane art-flow"><svg viewBox="0 0 284 130"><g class="art-line"><path class="art-muted" d="M31 39h222M31 94h222"/><circle cx="43" cy="65" r="14"/><circle cx="142" cy="65" r="14"/><circle cx="241" cy="65" r="14"/><path d="M65 65h53m-8-7 8 7-8 7M164 65h53m-8-7 8 7-8 7"/></g></svg></div>
+            <div class="art-pane art-check"><svg viewBox="0 0 60 60"><path class="art-line" d="m19 30 8 8 15-17"/></svg></div>
+          </div>
+          <div class="t">从单场景走向完整交互系统</div>
+          <p class="d">将分散的场景能力融入统一工作环境，通过一致的交互模式与上下文衔接，支持用户跨场景连续完成任务。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 一 · 3. 内部对产品形态的要求 -->
+    <section class="slide" aria-label="一、背景与问题 · 3. 内部对产品形态的要求">
+      <header class="ph rise">
+        <div class="chapter glass">一、背景与问题</div>
+        <h2 class="pt"><span class="num">3.</span>内部对产品形态的要求</h2>
+      </header>
+      <p class="body rise d1" style="margin-top:36px;">集团智能体建设正从面向<span class="hl">单一角色、单项活动的自动化</span>，走向<span class="hl">基于核心业务经营价值的端到端流程重塑</span>。在治理好主数据、业务数据的基础上，协同各领域规划，打通现有流程，重塑流程及组织角色职责，让 AI 的价值从单点提效延伸到组织与业务运营结果。</p>
+      <div class="shift rise d2">
+        <div class="panel glass">
+          <svg viewBox="0 0 560 110" aria-hidden="true">
+            <g fill="rgba(29,29,31,.16)"><circle cx="50" cy="30" r="12"/><circle cx="160" cy="80" r="12"/><circle cx="340" cy="78" r="12"/><circle cx="430" cy="28" r="12"/><circle cx="510" cy="84" r="12"/></g>
+            <circle cx="250" cy="26" r="12" fill="#009689" opacity=".7"/>
+          </svg>
+          <div class="cap">单一角色、单项活动的自动化<small>单点提效</small></div>
+        </div>
+        <div class="arrow-mid" aria-hidden="true">
+          <svg width="76" height="40" viewBox="0 0 80 40"><path d="M4 20 H68 M54 6 L70 20 L54 34" fill="none" stroke="#00786f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="panel glass">
+          <svg viewBox="0 0 560 110" aria-hidden="true">
+            <path d="M40 84 C 120 84, 120 28, 200 28 S 300 84, 370 78 S 460 28, 520 28" fill="none" stroke="#009689" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+            <g fill="#fff" stroke="#009689" stroke-width="5"><circle cx="40" cy="84" r="13"/><circle cx="200" cy="28" r="13"/><circle cx="370" cy="78" r="13"/><circle cx="520" cy="28" r="13"/></g>
+          </svg>
+          <div class="cap">基于核心业务经营价值的端到端流程重塑<small>组织与业务运营结果</small></div>
+        </div>
+      </div>
+      <div class="conclusion rise d3">
+        <p class="key" style="font-size:56px;margin-top:6px;"><em>不再区分 AI 应用与数字化系统，</em><br>以统一的产品体验承载业务任务。</p>
+      </div>
+    </section>
+
+    <!-- 章节封面：二、调整方向与目标 -->
+    <section class="slide section-slide" aria-label="二、调整方向与目标">
+      <div class="section-cover">
+        <h2 class="sc-title rise"><span class="accent-no">二、</span>调整方向与目标</h2>
+      </div>
+    </section>
+
+    <!-- 二、调整方向与目标 -->
+    <section class="slide directions-slide" aria-label="二、调整方向与目标">
+      <header class="ph rise">
+        <h2 class="pt"><span class="num" style="margin-right:0">二、</span>调整方向与目标</h2>
+      </header>
+      <p class="weak rise d1" style="margin-top:30px;font-size:25px;">以 AI 原生新 HR 门户为统一工作环境，推动 <span class="hl">AskHR 从问答入口向人资任务入口演进</span>。遵循《智能体产品交互设计指南》，由任务决定对话与界面的分工，实现 AI 与业务界面的双向调起和上下文承接。以薪酬智查和门户改造验证统一的交互模式，为各业务陆续接入建立基础，逐步支撑从咨询、分析到办理与结果跟踪的端到端流程。</p>
+      <div class="dirs">
+        <div class="dir glass rise d2">
+          <div class="label">调整方向</div>
+          <div class="k">统一服务入口</div>
+          <p class="weak">按业务任务梳理应用定位与服务归属，统一门户内的服务组织与入口，不再按 AI 功能和传统功能分别组织</p>
+          <div class="goal"><div class="label">目标</div><p>用户可以直接表达诉求或选择业务服务，无需先判断由哪个应用承接</p></div>
+        </div>
+        <div class="dir glass rise d3">
+          <div class="label">调整方向</div>
+          <div class="k">贯通场景协作</div>
+          <p class="weak">建立统一的交互模式与上下文承接规则，让各场景既能从统一 AI 入口调起，也能从业务页面进入</p>
+          <div class="goal"><div class="label">目标</div><p>同一任务中的对象、条件和结果可以延续，减少跨场景切换与重复描述</p></div>
+        </div>
+        <div class="dir glass rise d4">
+          <div class="label">调整方向</div>
+          <div class="k">扩展业务承载</div>
+          <p class="weak">扩展 AskHR 对业务界面的承载与调起能力，沉淀条件澄清、表单编辑、报表分析、结果反馈等可复用模式</p>
+          <div class="goal"><div class="label">目标</div><p>支撑从问答到复杂业务协作的延伸，降低新增场景逐项定制的成本</p></div>
+        </div>
+      </div>
+      <aside class="asset-context glass rise d4">
+        <h3>让所有企业应用资产，都成为企业 AI 的上下文</h3>
+        <p>将服务目录、代码、流程、规则、数据、知识等应用资产，通过交互手段和技术手段，转化为 AI 可理解、可检索、可按权限调用的业务上下文，为跨场景协作与端到端任务执行提供共同基础。</p>
+      </aside>
+    </section>
+
+    <!-- 章节封面：三、交互方案 -->
+    <section class="slide section-slide" aria-label="三、交互方案">
+      <div class="section-cover">
+        <h2 class="sc-title rise"><span class="accent-no">三、</span>交互方案</h2>
+      </div>
+    </section>
+
+    <!-- 三 · 场景一：薪酬智查 -->
+    <section class="slide" aria-label="三、交互方案 · 场景一：薪酬智查">
+      <header class="ph rise">
+        <div class="chapter glass">三、交互方案</div>
+        <div class="ph-row"><h2 class="pt">场景一：薪酬智查</h2><span class="demo-pill glass">Demo 演示</span></div>
+      </header>
+      <div class="scene-cols">
+        <div class="col glass problem-col rise d1">
+          <div class="col-h">核心问题</div>
+          <div class="items">
+            <div class="item"><span class="n">1.</span><div><div class="t">流程固化</div><p class="weak">分析流程以固定步骤组织，调整条件与继续探索不够灵活。</p></div></div>
+            <div class="item"><span class="n">2.</span><div><div class="t">理解负担重</div><p class="weak">专业条件与图表信息密集，用户理解参数、识别结论的负担较重。</p></div></div>
+            <div class="item"><span class="n">3.</span><div><div class="t">结果复用不足</div><p class="weak">分析过程与历史结果缺少衔接，重复使用成本较高。</p></div></div>
+          </div>
+        </div>
+        <div class="col-arrow rise d2" aria-hidden="true"><svg width="48" height="40" viewBox="0 0 48 40"><path d="M4 20 H40 M28 8 L41 20 L28 32" fill="none" stroke="#00786f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="col glass idea-col rise d2">
+          <div class="col-h">改进思路</div>
+          <div class="items">
+            <div class="item"><span class="n">1.</span><div><div class="t">对话驱动分析</div><p class="weak">通过自然语言表达分析目标，支持在当前结果上持续追问、调整条件。</p></div></div>
+            <div class="item"><span class="n">2.</span><div><div class="t">渐进引导阅读</div><p class="weak">按需补充必要条件，将对话与报告并置，以关键结论引导数据阅读。</p></div></div>
+            <div class="item"><span class="n">3.</span><div><div class="t">贯通分析任务</div><p class="weak">聚合分析与历史入口，延续任务上下文，贯通分析发起、诊断与报告交付。</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三 · 场景二：HR 门户 -->
+    <section class="slide" aria-label="三、交互方案 · 场景二：HR 门户">
+      <header class="ph rise">
+        <div class="chapter glass">三、交互方案</div>
+        <div class="ph-row"><h2 class="pt">场景二：HR 门户</h2><span class="demo-pill glass">Demo 演示</span></div>
+      </header>
+      <div class="scene-cols">
+        <div class="col glass problem-col rise d1">
+          <div class="col-h">核心问题</div>
+          <div class="items">
+            <div class="item"><span class="n">1.</span><div><div class="t">服务入口分散</div><p class="weak">业务服务与 AI 入口相对分散，用户寻找服务、选择入口的成本较高。</p></div></div>
+            <div class="item"><span class="n">2.</span><div><div class="t">任务衔接断层</div><p class="weak">咨询、查看与办理之间缺少上下文衔接，切换时需要重复描述。</p></div></div>
+            <div class="item"><span class="n">3.</span><div><div class="t">业务扩展受限</div><p class="weak">AskHR 偏重问答，复杂业务承载能力有限，新增场景较依赖定制。</p></div></div>
+          </div>
+        </div>
+        <div class="col-arrow rise d2" aria-hidden="true"><svg width="48" height="40" viewBox="0 0 48 40"><path d="M4 20 H40 M28 8 L41 20 L28 32" fill="none" stroke="#00786f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="col glass idea-col rise d2">
+          <div class="col-h">改进思路</div>
+          <div class="items">
+            <div class="item"><span class="n">1.</span><div><div class="t">统一工作入口</div><p class="weak">以统一工作台整合 AskHR 与各类业务服务，支持从对话或业务页面发起任务。</p></div></div>
+            <div class="item"><span class="n">2.</span><div><div class="t">贯通任务上下文</div><p class="weak">通过双向调起、上下文承接与结果联动，让问答、查询和办理在同一任务中连续完成。</p></div></div>
+            <div class="item"><span class="n">3.</span><div><div class="t">复用交互模式</div><p class="weak">扩展业务界面的承载与调起能力，沉淀可复用的交互模式，支持后续场景接入。</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<nav class="hud glass" id="hud" aria-label="翻页">
+  <button id="prev" aria-label="上一页"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M10 3 L5 8 L10 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="dots" id="dots"></div>
+  <button id="next" aria-label="下一页"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M6 3 L11 8 L6 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <span class="counter" id="counter"></span>
+  <button id="fs" aria-label="全屏（F）" title="全屏（F）"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 6 V2 H6 M10 2 H14 V6 M14 10 V14 H10 M6 14 H2 V10"/></svg></button>
+</nav>
+
+<script>
+(() => {
+  const stage = document.getElementById('stage');
+  const slides = [...document.querySelectorAll('.slide')];
+  const dots = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const hud = document.getElementById('hud');
+  const blobs = [...document.querySelectorAll('.blob')];
+  // 每页环境光的轻微位移，翻页时背景有空间感
+  const drift = [
+    [[0,0],[0,0],[0,0]], [[6,4],[-4,6],[-6,-2]], [[-4,8],[6,-4],[4,4]], [[8,-2],[-6,2],[-8,6]],
+    [[2,10],[4,8],[2,-6]], [[-6,2],[8,-6],[6,2]], [[4,-6],[-2,10],[-4,-4]]
+  ];
+  let cur = 0;
+
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', `第 ${i + 1} 页：${s.getAttribute('aria-label')}`);
+    b.addEventListener('click', () => go(i));
+    dots.appendChild(b);
+  });
+
+  function fit() {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    cur = i;
+    slides.forEach((s, k) => { s.classList.toggle('active', k === i); s.setAttribute('aria-hidden', k === i ? 'false' : 'true'); });
+    [...dots.children].forEach((d, k) => d.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    counter.textContent = `${i + 1} / ${slides.length}`;
+    prev.disabled = i === 0;
+    next.disabled = i === slides.length - 1;
+    const d = drift[i % drift.length];
+    blobs.forEach((b, k) => b.style.transform = `translate(${d[k][0]}vw, ${d[k][1]}vh)`);
+    history.replaceState(null, '', `#${i + 1}`);
+  }
+
+  prev.addEventListener('click', () => go(cur - 1));
+  next.addEventListener('click', () => go(cur + 1));
+  document.getElementById('fs').addEventListener('click', toggleFs);
+  function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }
+
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(slides.length - 1);
+    else if (e.key === 'f' || e.key === 'F') toggleFs();
+  });
+
+  let wheelLock = 0;
+  addEventListener('wheel', e => {
+    const now = Date.now();
+    if (now - wheelLock < 800 || Math.abs(e.deltaY) < 30) return;
+    wheelLock = now;
+    go(cur + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: true });
+
+  let tx = null;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  });
+
+  // 演示时鼠标静止 2.5 秒后隐藏翻页条
+  let idleTimer;
+  function wake() { hud.classList.remove('idle'); clearTimeout(idleTimer); idleTimer = setTimeout(() => hud.classList.add('idle'), 2500); }
+  addEventListener('mousemove', wake); addEventListener('keydown', wake);
+
+  addEventListener('resize', fit);
+  fit();
+  const start = parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? start - 1 : 0);
+  wake();
+})();
+</script>
+</body>
+</html>
