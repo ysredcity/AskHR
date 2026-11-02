@@ -71,7 +71,7 @@
   backdrop-filter: blur(20px) saturate(130%);
   -webkit-backdrop-filter: blur(20px) saturate(130%);
 }
-:root[data-askhr-appearance="glass"] :is([data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"]) {
+:root[data-askhr-appearance="glass"] :is([data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"]) {
   border: 1px solid var(--glass-border);
   border-radius: 22px;
   background: linear-gradient(135deg, color-mix(in oklch, var(--card) 70%, transparent), color-mix(in oklch, var(--card) 35%, transparent)), var(--glass-surface);
@@ -122,7 +122,7 @@
   background: color-mix(in oklch, var(--card) 54%, transparent);
   box-shadow: inset 0 1px 0 var(--glass-border), 0 2px 4px color-mix(in oklch, var(--glass-shade) 5%, transparent);
 }
-:root[data-askhr-appearance="glass"] :is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"], [data-slot="popover-content"]) {
+:root[data-askhr-appearance="glass"] :is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"], [data-slot="popover-content"], [data-slot="dialog-content"]) {
   border: 1px solid var(--glass-border);
   border-radius: 18px;
   background: var(--glass-popover);
@@ -179,8 +179,42 @@
   :root[data-askhr-appearance="glass"] [data-slot="service-card"]:hover { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], #hr-copilot) { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, #hr-copilot) { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 @supports not (backdrop-filter: blur(1px)) {
-  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], #hr-copilot) { background: var(--card); }
+  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, #hr-copilot) { background: var(--card); }
+}
+
+/* Personal panorama and tasks use the same material without changing their controls. */
+:root[data-askhr-appearance="glass"] .employee-surface {
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 96% 30%, color-mix(in oklch, var(--surface-tint) 13%, transparent), transparent 60%),
+    linear-gradient(135deg, color-mix(in oklch, var(--card) 74%, transparent), color-mix(in oklch, var(--card) 44%, transparent));
+  box-shadow: var(--glass-elevation);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+:root[data-askhr-appearance="glass"] .employee-art { opacity: .7; }
+:root[data-askhr-appearance="glass"] [data-slot="employee-metric"] { transition: box-shadow 160ms ease; }
+:root[data-askhr-appearance="glass"] [data-slot="task-row"] {
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+:root[data-askhr-appearance="glass"] [data-slot="task-row"]:is(:hover, :focus-visible) {
+  background: color-mix(in oklch, var(--card) 52%, transparent);
+  border-color: var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-border), 0 2px 6px color-mix(in oklch, var(--glass-shade) 4%, transparent);
+}
+:root[data-askhr-appearance="glass"] :is([data-slot="input"], [data-slot="textarea"]) {
+  background: color-mix(in oklch, var(--card) 55%, transparent);
+  border-color: color-mix(in oklch, var(--border) 70%, var(--glass-border));
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-askhr-appearance="glass"] .employee-surface { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  :root[data-askhr-appearance="glass"] .employee-surface { background: var(--card); }
 }

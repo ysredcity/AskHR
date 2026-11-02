@@ -16,7 +16,7 @@ function initialAppearance(): Appearance {
 export function LiquidGlassPreview() {
   const { route } = useHR();
   const [appearance, setAppearance] = useState<Appearance>(initialAppearance);
-  const enabled = ['home', 'team', 'organization', 'hall'].includes(route);
+  const enabled = ['home', 'employee', 'team', 'organization', 'tasks', 'hall'].includes(route);
   useEffect(() => {
     document.documentElement.dataset.askhrAppearance = enabled ? appearance : 'classic';
     return () => { delete document.documentElement.dataset.askhrAppearance; };

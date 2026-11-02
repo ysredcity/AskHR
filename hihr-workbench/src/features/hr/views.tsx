@@ -119,7 +119,7 @@ function Metric({
   showDetails?: boolean;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
+    <div data-slot="employee-metric" className="rounded-xl border bg-card p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 text-sm text-muted-foreground">{label}</p>
         {showDetails && <DetailsButton label={label} />}
@@ -181,10 +181,11 @@ export function Tasks({
             <Tabs items={["待处理", "已完成"]} value={filter} onChange={setFilter} />
           </HeaderControls>
         )}
-        <div className="space-y-1">
+        <div data-slot="task-list" className="space-y-1">
           {rows.map((t) => (
             <button
               key={t.id}
+              data-slot="task-row"
               className="group flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left outline-none transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               <span
