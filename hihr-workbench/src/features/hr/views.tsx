@@ -1003,6 +1003,7 @@ export function HallPage() {
                 return (
                   <div
                     key={s.id}
+                    data-slot="service-card"
                     className="group relative rounded-xl border bg-card transition-colors hover:bg-accent"
                   >
                     <button

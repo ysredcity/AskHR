@@ -315,7 +315,7 @@ export function Composer({ placeholder = "问政策、查信息，或告诉我�
   return (
     <div className="relative w-full">
       {trigger && <TriggerMenu menus={contextMenus} triggerKey={trigger.key} side={menuSide} onSelect={insertAtTrigger} />}
-      <div className="flex max-h-52 w-full flex-col overflow-hidden rounded-3xl border bg-background shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] focus-within:border-input min-[660px]:max-h-60">
+      <div data-slot="composer-surface" className="flex max-h-52 w-full flex-col overflow-hidden rounded-3xl border bg-background shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] focus-within:border-input min-[660px]:max-h-60">
       {/* 内联标签图标模板：插入标签时克隆这里的 SVG，保证与菜单图标一致 */}
       <div ref={iconTemplatesRef} className="hidden" aria-hidden="true">
         {contextItems.filter(item => inlineContextTypes.includes(item.type as InlineContextType)).map(item => {
