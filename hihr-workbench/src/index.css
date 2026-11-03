@@ -1,5 +1,6 @@
 /* Canonical product tokens and Markdown typography are materialized from @agent-ux/agent-ui. */
 @import "./agent-ui/immersive/theme.css";
+@import "./features/appearance/liquid-glass.css";
 
 @layer base {
   * {

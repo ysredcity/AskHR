@@ -85,7 +85,7 @@ export function NewConversationPage({
           <div className="mt-16">
             <PersonalBriefing />
           </div>
-          <section className="mt-6 rounded-xl border bg-card p-3">
+          <section data-slot="home-tasks" className="mt-6 rounded-xl border bg-card p-3">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-medium">
                 待办事项{" "}

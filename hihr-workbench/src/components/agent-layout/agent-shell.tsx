@@ -153,7 +153,10 @@ export function AgentShell({
   const [readConversationIds, setReadConversationIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    try { return localStorage.getItem("askhr:color-mode") === "dark"; }
+    catch { return false; }
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarDrawerOpen, setSidebarDrawerOpen] = useState(false);
   const [panelTabs, setPanelTabs] = useState<PanelTab[]>([]);
@@ -188,6 +191,8 @@ export function AgentShell({
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
+    try { localStorage.setItem("askhr:color-mode", darkMode ? "dark" : "light"); }
+    catch { /* Keep the in-session selection when storage is unavailable. */ }
   }, [darkMode]);
 
   useEffect(

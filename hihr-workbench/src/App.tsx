@@ -2,6 +2,7 @@ import { ImmersiveAgentApp } from "@/agent-ui/immersive/agent-app";
 import { appConfig } from "@/components/agent-layout/app-config";
 import { createDraftScene } from "@/components/agent-layout/conversation-data";
 import { scenes } from "@/components/agent-layout/scenes";
+import { AppearanceProvider } from "@/features/appearance/appearance-provider";
 import { HRProvider } from "@/features/hr/store";
 const pinned = [{ id: "policy", title: "年假政策与可用余额" }];
 const recent = [
@@ -11,6 +12,7 @@ const recent = [
 export default function App() {
   return (
     <HRProvider>
+      <AppearanceProvider>
       <ImmersiveAgentApp
         config={appConfig}
         scenes={scenes}
@@ -21,6 +23,7 @@ export default function App() {
           ...createDraftScene(content, expert, attachments),
         })}
       />
+      </AppearanceProvider>
     </HRProvider>
   );
 }
