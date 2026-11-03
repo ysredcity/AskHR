@@ -35,11 +35,21 @@ export const hrIcons = {
 };
 
 export const serviceIconColors: Record<string, string> = {
+  "人事情服务": "bg-info/10 text-info",
   "人事服务": "bg-info/10 text-info",
   "薪酬福利": "bg-success/10 text-success",
   "绩效与改进": "bg-warning/10 text-warning-foreground",
   "学习发展": "bg-primary/10 text-primary",
   "团队管理": "bg-info/10 text-info",
   "数据分析": "bg-success/10 text-success",
+  "薪酬洞察": "bg-warning/10 text-warning-foreground",
+  "薪酬设计": "bg-info/10 text-info",
+  "定调薪管理": "bg-primary/10 text-primary",
+  "年度调薪": "bg-success/10 text-success",
+  "定调薪设置": "bg-info/10 text-info",
+  "奖金管理": "bg-warning/10 text-warning-foreground",
+  "福利管理": "bg-success/10 text-success",
+  "报表管理": "bg-primary/10 text-primary",
+  "招聘": "bg-info/10 text-info",
   "薪酬管理": "bg-warning/10 text-warning-foreground",
 };

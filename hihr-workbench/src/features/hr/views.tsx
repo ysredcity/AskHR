@@ -46,6 +46,7 @@ import {
   development,
   employeeTabs,
   hallRoles,
+  hallCategories,
   onboarding,
   person,
   services,
@@ -969,10 +970,12 @@ export function LeaveForm({ compact = false }: { compact?: boolean }) {
 export function HallPage() {
   const { role, setRole, favorites, setFavorites, setHomeExpert, setHomeAgentCategory, setHomeDraft, setHomeContext } = useHR();
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("全部");
   const [onlyFavorite, setOnlyFavorite] = useState(false);
   const list = services.filter(
     (s) =>
       s.role === role &&
+      (category === "全部" || s.category === category) &&
       (!onlyFavorite || favorites.includes(s.id)) &&
       `${s.name}${s.description}`.includes(query),
   );
@@ -986,6 +989,7 @@ export function HallPage() {
         onChange={(v) => {
           setRole(hallRoles.indexOf(v as (typeof hallRoles)[number]));
           setQuery("");
+          setCategory("全部");
         }}
       />
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
@@ -993,6 +997,9 @@ export function HallPage() {
         <Button size="sm" variant={onlyFavorite ? "secondary" : "outline"} aria-label="常用服务" aria-pressed={onlyFavorite} title="常用服务" onClick={() => setOnlyFavorite(v=>!v)}><Star className={cn("size-3.5", onlyFavorite && "fill-current text-primary")} /><span className="max-[1000px]:hidden">常用服务</span></Button>
       </div>
       </HeaderControls>
+      {hallCategories[role].length > 1 && <div className="mb-5 flex flex-wrap gap-1.5" role="group" aria-label="服务分类">
+        {hallCategories[role].map(item => <Button key={item} size="sm" variant={category === item ? "secondary" : "ghost"} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</Button>)}
+      </div>}
       {categories.map((cat) => (
         <section key={cat} className="mb-5">
           <h2 className="mb-2 text-sm font-medium">{cat}</h2>
@@ -1008,16 +1015,16 @@ export function HallPage() {
                     className="group relative rounded-xl border bg-card transition-colors hover:bg-accent"
                   >
                     <button
-                      className="w-full p-3 text-left"
+                      className="w-full min-w-0 px-3 py-2.5 text-left"
                       onClick={s.id === "compensation" ? () => window.open(`${window.location.pathname}#/compensation${window.location.search}`, "_blank", "noopener,noreferrer") : undefined}
                     >
-                      <div className={cn("mb-2 flex size-8 items-center justify-center rounded-lg", serviceIconColors[cat] ?? "bg-primary/10 text-primary")}>
+                      <div className={cn("mb-1.5 flex size-7 items-center justify-center rounded-lg", serviceIconColors[cat] ?? "bg-primary/10 text-primary")}>
                         <Icon className="size-4" />
                       </div>
-                      <h3 className="text-sm font-medium group-hover:text-foreground">
+                      <h3 className="truncate text-sm font-medium group-hover:text-foreground" title={s.name}>
                         {s.name}
                       </h3>
-                      <p className="mt-1 pr-7 text-xs leading-5 text-muted-foreground">
+                      <p className="mt-0.5 truncate pr-7 text-xs leading-5 text-muted-foreground" title={s.description}>
                         {s.description}
                       </p>
                     </button>
