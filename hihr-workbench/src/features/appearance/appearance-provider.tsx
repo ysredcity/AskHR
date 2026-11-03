@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Gem } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState, type ReactNode } from 'react';
+import { AppearanceContext, type Appearance } from './context';
 import { useHR } from '@/features/hr/context';
 
-type Appearance = 'classic' | 'glass';
 const storageKey = 'askhr:appearance-experiment';
 function initialAppearance(): Appearance {
   const query = new URLSearchParams(window.location.search).get('appearance');
@@ -12,8 +10,7 @@ function initialAppearance(): Appearance {
   catch { return 'glass'; }
 }
 
-/** Experimental branch only: the switch changes styling without remounting the workspace. */
-export function LiquidGlassPreview() {
+export function AppearanceProvider({ children }: { children: ReactNode }) {
   const { route } = useHR();
   const [appearance, setAppearance] = useState<Appearance>(initialAppearance);
   const enabled = ['home', 'employee', 'team', 'organization', 'tasks', 'hall'].includes(route);
@@ -28,10 +25,5 @@ export function LiquidGlassPreview() {
     window.history.replaceState(null, '', url);
     try { localStorage.setItem(storageKey, next); } catch { /* The URL still keeps the preview shareable. */ }
   };
-  if (!enabled) return null;
-  return <div className="appearance-preview" role="group" aria-label="外观对比">
-    <Gem className="size-3.5 shrink-0" aria-hidden="true" />
-    <Button size="xs" variant="ghost" aria-pressed={appearance === 'classic'} onClick={() => choose('classic')}>原版</Button>
-    <Button size="xs" variant="ghost" aria-pressed={appearance === 'glass'} onClick={() => choose('glass')}>玻璃</Button>
-  </div>;
+  return <AppearanceContext.Provider value={{ appearance, chooseAppearance: choose }}>{children}</AppearanceContext.Provider>;
 }

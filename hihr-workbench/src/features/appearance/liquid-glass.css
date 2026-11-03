@@ -152,28 +152,6 @@
 }
 
 /* This compact comparison control exists only on the experimental branch. */
-.appearance-preview {
-  --preview-white: hsl(0 0% 100%);
-  --preview-shadow: hsl(220 20% 25% / 10%);
-  position: fixed;
-  left: 20px;
-  bottom: 18px;
-  z-index: 45;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 4px 6px;
-  border: 1px solid color-mix(in oklch, var(--preview-white) 75%, var(--border));
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--card) 78%, transparent);
-  box-shadow: inset 0 1px 0 var(--preview-white), 0 3px 12px var(--preview-shadow);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-.appearance-preview > svg { margin-inline: 4px; color: var(--muted-foreground); }
-.appearance-preview [data-slot="button"] { border-radius: 999px; min-width: 44px; font-size: 11px; }
-.appearance-preview [aria-pressed="true"] { background: var(--foreground); color: var(--background); }
-.dark .appearance-preview { --preview-white: hsl(220 10% 45%); --preview-shadow: hsl(220 20% 3% / 20%); }
 @media (prefers-reduced-motion: reduce) {
   :root[data-askhr-appearance="glass"] [data-slot="service-card"] { transition: none; }
   :root[data-askhr-appearance="glass"] [data-slot="service-card"]:hover { transform: none; }

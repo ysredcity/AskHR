@@ -1,5 +1,6 @@
-import { Archive, House } from "lucide-react";
+import { Archive, House, Gem, Palette } from "lucide-react";
 import { AgentAvatar } from "./resource-visuals";
+import { useAppearance } from "@/features/appearance/context";
 import { useHR } from "@/features/hr/context";
 import { authorizedWorkspaces } from "@/features/hr/data";
 import { hrIcons } from "@/features/hr/icons";
@@ -19,6 +20,10 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -167,6 +172,7 @@ export function AgentSidebar({
   readConversationIds,
 }: AgentSidebarProps) {
   const { route, setRoute, archived, tasks } = useHR();
+  const { appearance, chooseAppearance } = useAppearance();
   const visible = (items: Conversation[]) => items.filter(item => !archived.includes(item.id));
   const [pinnedOpen, setPinnedOpen] = useState(true)
   const [conversationsOpen, setConversationsOpen] = useState(true)
@@ -237,25 +243,31 @@ export function AgentSidebar({
       </SidebarContent>
 
       <SidebarFooter className={cn("flex-row justify-end p-3", drawer && "p-4")}>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <IconButton
-                aria-label={darkMode ? "切换到浅色模式" : "切换到深色模式"}
-                className={cn(
-                  "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  drawer && "size-10 rounded-[10px] [&_svg]:size-5",
-                )}
-                onClick={() => onDarkModeChange(!darkMode)}
-              >
-                {darkMode ? <Sun /> : <Moon />}
-              </IconButton>
-            }
-          />
-          <TooltipContent side="top">
-            {darkMode ? "浅色模式" : "深色模式"}
-          </TooltipContent>
-        </Tooltip>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={
+            <IconButton aria-label="外观设置" className={cn(
+              "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              drawer && "size-10 rounded-[10px] [&_svg]:size-5",
+            )}><Palette /></IconButton>
+          } />
+          <DropdownMenuContent side="top" align="end" className="w-52">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>主题</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={appearance} onValueChange={value => chooseAppearance(value as 'classic' | 'glass')}>
+                <DropdownMenuRadioItem value="classic"><Palette />经典</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="glass"><Gem />Liquid Glass</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>颜色模式</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={darkMode ? 'dark' : 'light'} onValueChange={value => onDarkModeChange(value === 'dark')}>
+                <DropdownMenuRadioItem value="light"><Sun />浅色</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="dark"><Moon />深色</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
 
     </ShadcnSidebar>

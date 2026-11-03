@@ -5,7 +5,7 @@
 ## 版本保护
 
 - 仓库根目录：`/Users/yangshuo/Code/HR-Portal`
-- 原版分支：`main`
+- 主分支：`main`（2026-11-03 合并双主题）
 - 原版提交：`34d8380`
 - 固定标签：`baseline/pre-liquid-glass-2026-11-02`
 - 实验分支：`experiment/liquid-glass`
@@ -23,14 +23,14 @@
 
 ## 对比与恢复
 
-- 左下角“原版 / 玻璃”即时切换；仅改变 CSS，保留当前 Tab、对话与草稿。
+- 左侧导航底部“外观设置”菜单统一提供主题（经典 / Liquid Glass）和颜色模式（浅色 / 深色）。切换不重建工作区，保留当前 Tab、对话与草稿；选择保存到本地。
 - 指定原版预览：`http://127.0.0.1:5174/?appearance=classic`
 - 指定玻璃预览：`http://127.0.0.1:5174/?appearance=glass`
-- 完整回到本轮修改前：在仓库根目录执行 `git checkout main`，刷新浏览器。
+- 完整回到实验前源代码：先保存未提交修改，再执行 `git checkout -b restore/pre-liquid-glass baseline/pre-liquid-glass-2026-11-02`，刷新浏览器。主分支合并后不再等于旧版；固定标签仍保留。
 - 回到实验版：`git checkout experiment/liquid-glass`，刷新浏览器。
 - 后续有未提交修改时，先保存为提交再切分支；不要使用强制覆盖或 reset --hard。
 
-实验 CSS 集中在 `hihr-workbench/src/features/appearance/liquid-glass.css`。组件只增加样式定位属性；独立开关组件为 `liquid-glass-preview.tsx`。
+实验 CSS 集中在 `hihr-workbench/src/features/appearance/liquid-glass.css`。组件只增加样式定位属性；共享外观状态由 `appearance-provider.tsx` 提供，入口使用侧栏的 shadcn DropdownMenu 单选菜单。
 
 ## 验证记录
 
@@ -45,3 +45,9 @@
 按用户要求撤销未提交的绿色配色尝试，恢复 c9efd7e 的蓝紫灰背景参数；将个人全景与待办事项纳入实验范围。个人的 banner、指标卡、资料/收入/绩效/学习卡片以及待办列表应用统一玻璃材质。业务数据与按钮行为不变，main 基线不变。
 
 本次验证：个人六个 Tab 均启用 glass；个人信息 banner 与资料卡、假勤/绩效指标卡、收入/发展内容卡和待办列表均可显示。待办的“已完成”筛选在原版/玻璃切换后保留。构建、定向 lint、token 和差异空白检查通过。
+
+## 2026-11-03 合并至 main
+
+经用户授权，将双主题功能合并至 main，保留实验分支及基线标签。移除浮动对比开关，导航底部统一为“外观设置”，主题和颜色模式分别选择、独立生效。保留原有 glass 默认值、URL 参数和主题本地存储；颜色模式也保存到本地。薪酬智参及报告的主题适配范围保持原样。
+
+验证：菜单中经典 / Liquid Glass、浅色 / 深色的单选状态与根元素样式一致，切换后恢复 glass + 浅色。构建、定向 oxlint、token 检查通过。
