@@ -2,7 +2,7 @@
 :root[data-askhr-appearance="glass"] {
   --glass-canvas: hsl(218 29% 95%);
   --glass-blue: hsl(213 80% 85%);
-  --glass-violet: hsl(250 53% 88%);
+  --glass-mint: hsl(164 42% 88%);
   --glass-pearl: hsl(30 50% 94%);
   --glass-ink: hsl(222 18% 17%);
   --glass-muted: hsl(219 11% 40%);
@@ -22,7 +22,7 @@
 :root.dark[data-askhr-appearance="glass"] {
   --glass-canvas: hsl(221 22% 11%);
   --glass-blue: hsl(215 40% 23%);
-  --glass-violet: hsl(250 27% 25%);
+  --glass-mint: hsl(168 27% 25%);
   --glass-pearl: hsl(30 12% 18%);
   --glass-white: hsl(225 30% 80%);
   --glass-ink: hsl(218 18% 94%);
@@ -36,7 +36,7 @@
 :root[data-askhr-appearance="glass"] [data-slot="sidebar-wrapper"] {
   background:
     radial-gradient(ellipse at 82% 2%, color-mix(in oklch, var(--glass-blue) 50%, transparent), transparent 54%),
-    radial-gradient(ellipse at 12% 72%, color-mix(in oklch, var(--glass-violet) 38%, transparent), transparent 58%),
+    radial-gradient(ellipse at 12% 72%, color-mix(in oklch, var(--glass-mint) 38%, transparent), transparent 58%),
     radial-gradient(ellipse at 88% 100%, var(--glass-pearl), transparent 58%),
     var(--glass-canvas);
 }
@@ -66,10 +66,10 @@
   box-shadow: inset 0 1px 0 var(--glass-border), 0 2px 5px color-mix(in oklch, var(--glass-shade) 5%, transparent);
 }
 :root[data-askhr-appearance="glass"] main section > header {
-  background: color-mix(in oklch, var(--card) 25%, transparent);
-  border-bottom-color: var(--glass-border);
-  backdrop-filter: blur(20px) saturate(130%);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 :root[data-askhr-appearance="glass"] :is([data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"]) {
   border: 1px solid var(--glass-border);
@@ -136,7 +136,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 22px;
   background:
-    radial-gradient(ellipse at 10% 0, color-mix(in oklch, var(--glass-violet) 45%, transparent), transparent 65%),
+    radial-gradient(ellipse at 10% 0, color-mix(in oklch, var(--glass-banner-tint, var(--glass-mint)) 45%, transparent), transparent 65%),
     radial-gradient(ellipse at 96% 90%, color-mix(in oklch, var(--glass-blue) 40%, transparent), transparent 65%),
     color-mix(in oklch, var(--card) 56%, transparent);
   box-shadow: var(--glass-elevation);
@@ -196,3 +196,5 @@
 @supports not (backdrop-filter: blur(1px)) {
   :root[data-askhr-appearance="glass"] .employee-surface { background: var(--card); }
 }
+
+:root[data-askhr-appearance="glass"] .panorama-insight { --glass-banner-tint: var(--glass-mint); }

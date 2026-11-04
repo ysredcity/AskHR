@@ -8,15 +8,16 @@ export const employeeTabs = [
 ] as const;
 export const hallRoles = ["员工自助", "管理者自助", "HR自助"] as const;
 export const hallCategories: readonly (readonly string[])[] = [
-  ["全部", "人事情服务", "薪酬福利", "学习发展", "绩效与改进"],
+  ["全部", "人事服务", "薪酬福利", "学习发展", "绩效与改进"],
   ["全部"],
-  ["全部", "薪酬洞察", "薪酬设计", "定调薪管理", "年度调薪", "定调薪设置", "奖金管理", "福利管理", "报表管理", "招聘"],
+  ["全部", "薪酬管理", "招聘管理", "人事服务", "人才管理"],
 ];
+export const salaryServiceCategories = ["薪酬洞察", "薪酬设计", "定调薪管理", "年度调薪", "定调薪设置", "奖金管理", "福利管理", "报表管理"] as const;
 export type Route = "home" | "employee" | "team" | "organization" | "hall" | "tasks" | "service" | "compensation";
 // 当前登录用户的前端授权工作区；生产接入时由权限服务提供。
 export const authorizedWorkspaces: readonly Route[] = ["employee", "team", "organization"];
 export const person = {
-  name: "王乐山",
+  name: "张益达",
   initials: "乐",
   department: "数字化转型办公室",
   team: "产品与体验组",
@@ -197,31 +198,31 @@ export type Service = {
   category: string;
   role: number;
   kind: "leave" | "proof" | "team" | "report" | "generic";
-  agent?: { expert: string; category: string };
+  agent?: { expert: string; category?: string };
 };
 export const services: Service[] = [
-  {"id": "service-0-0-0", "name": "创意圆桌", "description": "分享创意，参与交流与共创", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "applications", "name": "我的申请", "description": "查看申请进度与审批记录", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-2", "name": "找外部专家", "description": "查找外部专家与专业资源", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-3", "name": "我的招聘", "description": "查看招聘参与事项与进度", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-4", "name": "调档函", "description": "申请调档函与档案转递", "category": "人事情服务", "role": 0, "kind": "proof"},
-  {"id": "service-0-0-5", "name": "修改个人信息", "description": "维护个人资料与联系信息", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-6", "name": "档案借用", "description": "申请借用个人档案材料", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-7", "name": "权限申请", "description": "申请业务系统访问权限", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "leave", "name": "休假申请", "description": "查询余额并提交休假申请", "category": "人事情服务", "role": 0, "kind": "leave"},
-  {"id": "service-0-0-9", "name": "试用期目标制定", "description": "制定试用期目标与考核计划", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-10", "name": "落户申请", "description": "提交落户材料与办理申请", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-11", "name": "离职申请", "description": "发起离职流程与工作交接", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "proof", "name": "在职证明", "description": "申请开具在职证明", "category": "人事情服务", "role": 0, "kind": "proof"},
-  {"id": "service-0-0-13", "name": "收入证明", "description": "申请开具个人收入证明", "category": "人事情服务", "role": 0, "kind": "proof"},
-  {"id": "service-0-0-14", "name": "员工补卡", "description": "补充缺卡记录与考勤说明", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-15", "name": "产假回岗", "description": "办理产假结束回岗手续", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-16", "name": "专家公寓", "description": "申请专家公寓与入住服务", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-17", "name": "户口借用", "description": "申请借用户口相关材料", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-18", "name": "退休申请", "description": "办理退休申请与资料提交", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-19", "name": "出国境申请", "description": "办理因私出国境申请", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-20", "name": "职称申请", "description": "提交职称申报与评审材料", "category": "人事情服务", "role": 0, "kind": "generic"},
-  {"id": "service-0-0-21", "name": "外部专家引荐", "description": "推荐外部专家与合作资源", "category": "人事情服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-0", "name": "创意圆桌", "description": "分享创意，参与交流与共创", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "applications", "name": "我的申请", "description": "查看申请进度与审批记录", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-2", "name": "找外部专家", "description": "查找外部专家与专业资源", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-3", "name": "我的招聘", "description": "查看招聘参与事项与进度", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-4", "name": "调档函", "description": "申请调档函与档案转递", "category": "人事服务", "role": 0, "kind": "proof", "agent": {"expert": "人力管理专家"}},
+  {"id": "service-0-0-5", "name": "修改个人信息", "description": "维护个人资料与联系信息", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-6", "name": "档案借用", "description": "申请借用个人档案材料", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-7", "name": "权限申请", "description": "申请业务系统访问权限", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "leave", "name": "休假申请", "description": "查询余额并提交休假申请", "category": "人事服务", "role": 0, "kind": "leave", "agent": {"expert": "假勤专家", "category": "leave"}},
+  {"id": "service-0-0-9", "name": "试用期目标制定", "description": "制定试用期目标与考核计划", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-10", "name": "落户申请", "description": "提交落户材料与办理申请", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-11", "name": "离职申请", "description": "发起离职流程与工作交接", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "proof", "name": "在职证明", "description": "申请开具在职证明", "category": "人事服务", "role": 0, "kind": "proof", "agent": {"expert": "人力管理专家"}},
+  {"id": "service-0-0-13", "name": "收入证明", "description": "申请开具个人收入证明", "category": "人事服务", "role": 0, "kind": "proof", "agent": {"expert": "薪酬专家", "category": "income"}},
+  {"id": "service-0-0-14", "name": "员工补卡", "description": "补充缺卡记录与考勤说明", "category": "人事服务", "role": 0, "kind": "generic", "agent": {"expert": "假勤专家", "category": "leave"}},
+  {"id": "service-0-0-15", "name": "产假回岗", "description": "办理产假结束回岗手续", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-16", "name": "专家公寓", "description": "申请专家公寓与入住服务", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-17", "name": "户口借用", "description": "申请借用户口相关材料", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-18", "name": "退休申请", "description": "办理退休申请与资料提交", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-19", "name": "出国境申请", "description": "办理因私出国境申请", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-20", "name": "职称申请", "description": "提交职称申报与评审材料", "category": "人事服务", "role": 0, "kind": "generic"},
+  {"id": "service-0-0-21", "name": "外部专家引荐", "description": "推荐外部专家与合作资源", "category": "人事服务", "role": 0, "kind": "generic"},
   {"id": "service-0-1-0", "name": "奖金方案申请", "description": "提交奖金方案与发放计划", "category": "薪酬福利", "role": 0, "kind": "generic"},
   {"id": "service-0-1-1", "name": "奖金分配申请", "description": "提交奖金分配明细", "category": "薪酬福利", "role": 0, "kind": "generic"},
   {"id": "service-0-1-2", "name": "股权收入", "description": "查询股权激励收入记录", "category": "薪酬福利", "role": 0, "kind": "generic"},
@@ -381,24 +382,27 @@ export const employeeExperts: Record<string, string> = {
 
 export const personalRecommendations = [
   {
-    id: "performance-review", topic: "绩效回顾", expert: "人才发展专家", source: "第三季度绩效与目标记录",
-    title: "绩效回顾要点，已为你整理好",
-    description: "结合本季度目标与反馈，准备了一份沟通提纲。要一起完善下一阶段的行动吗？",
-    points: ["本季度绩效结果 A，目标完成率 108%。", "反馈亮点：推进业务落地，跨团队协作主动。", "下一步建议：补充数据验证案例，明确推广目标。"],
-    action: "完善提纲", prompt: "请结合我的第三季度绩效结果 A、目标完成率 108% 和绩效反馈，完善绩效沟通提纲，并提出下一阶段的行动建议。",
+    id: "pbc-planning", topic: "绩效 PBC 填写", expert: "人才发展专家", source: "2027 年度 PBC 填写通知",
+    window: "11 月 2 日–11 月 15 日",
+    title: "新一年的目标，从 PBC 开始",
+    description: "2027 年度 PBC 填写已开启，请在窗口期内完成个人目标制定与提交，逾期入口将关闭。",
+    entry: "PBC 填写", action: "咨询填写要点",
+    prompt: "我准备填写 2027 年度 PBC，办理窗口为 11 月 2 日至 11 月 15 日。请结合我的岗位职责，帮我梳理个人目标、衡量标准和填写要点，提交时间以 HR 通知为准。",
   },
   {
-    id: "income-summary", topic: "收入简报", expert: "薪酬专家", source: "2026 年 8–9 月收入明细",
-    title: "9 月收入变化，已帮你梳理清楚",
-    description: "实发较上月减少 320 元，主要变化来自绩效工资和个税。你可以先看摘要，再决定需要核对什么。",
-    points: ["9 月实发 18,380 元，8 月实发 18,700 元。", "绩效工资减少 400 元，个人所得税减少 80 元。", "基本工资、津补贴及社保公积金保持不变。"],
-    action: "继续核对", prompt: "请基于 2026 年 8–9 月收入明细，解释实发减少 320 元的构成，并整理我需要向薪酬专员核对的问题。",
+    id: "qualification", topic: "任职资格认证", expert: "人才发展专家", source: "第四季度任职资格认证通知",
+    window: "11 月 5 日–11 月 20 日",
+    title: "任职资格认证，准备好下一步成长",
+    description: "第四季度认证申报已开启，完成自评与举证材料准备，认证通过后将纳入任职资格档案。",
+    entry: "认证申请", action: "咨询认证规则",
+    prompt: "我准备申请第四季度任职资格认证，办理窗口为 11 月 5 日至 11 月 20 日。请帮我了解认证规则、自评填写要求和举证材料清单，办理安排以 HR 通知为准。",
   },
   {
-    id: "learning-plan", topic: "成长建议", expert: "人才发展专家", source: "个人发展计划与学习记录",
-    title: "下一步学习，从 AI 产品实践开始",
-    description: "结合你的产品岗位与发展计划，建议先推进「AI 产品设计与实践」，把学习与工作项目连接起来。",
-    points: ["「AI 产品设计与实践」共 4 课时，当前完成 25%。", "个人发展方向：从产品设计到 AI 产品规划。", "建议先完成课程，再选一个工作场景形成实践案例。"],
-    action: "安排学习", prompt: "请根据我的个人发展计划，为「AI 产品设计与实践」课程（4 课时，已完成 25%）制定接下来两周的学习与项目实践安排。",
+    id: "professional-title", topic: "职称申请", expert: "人才发展专家", source: "年度职称申报通知",
+    window: "11 月 10 日–11 月 30 日",
+    title: "职称申报开启，让专业积累被看见",
+    description: "年度职称申报窗口已开启，请准备业绩成果与申报材料，评审通过后将对接职级评聘。",
+    entry: "职称申请", action: "咨询申报要点",
+    prompt: "我准备申请年度职称，办理窗口为 11 月 10 日至 11 月 30 日。请帮我梳理申报条件、业绩成果与材料清单，并指导填写，具体要求以 HR 通知为准。",
   },
 ] as const;

@@ -1,6 +1,7 @@
+import { ServiceCategoryAnchors } from "./service-category-anchors";
 import CompensationApp from "@/features/compensation/compensation-app";
 import { EmployeeSurface, EmployeeHighlight } from "./employee-visual";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { HeaderControls } from "./header-controls";
 import { PanoramaPageView } from "./panorama";
 import {
@@ -47,6 +48,7 @@ import {
   employeeTabs,
   hallRoles,
   hallCategories,
+  salaryServiceCategories,
   onboarding,
   person,
   services,
@@ -340,7 +342,7 @@ export function EmployeePage() {
       {employeeTab === "个人信息" && (
         <div className="grid gap-6">
           <EmployeeSurface tone="profile" className="p-7"><div className="flex flex-wrap items-center gap-5">
-            <Avatar className="size-18"><AvatarFallback className="text-2xl">乐</AvatarFallback></Avatar>
+            <Avatar className="size-18"><AvatarFallback className="text-2xl">达</AvatarFallback></Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <h2 className="text-xl font-semibold">{person.name}</h2>
@@ -931,7 +933,7 @@ export function LeaveForm({ compact = false }: { compact?: boolean }) {
           <DialogHeader>
             <DialogTitle>确认提交休假申请</DialogTitle>
             <DialogDescription>
-              操作人：王乐山 · 提交后进入审批流程
+              操作人：张益达 · 提交后进入审批流程
             </DialogDescription>
           </DialogHeader>
           <dl className="grid grid-cols-2 gap-5 text-sm">
@@ -971,11 +973,13 @@ export function HallPage() {
   const { role, setRole, favorites, setFavorites, setHomeExpert, setHomeAgentCategory, setHomeDraft, setHomeContext } = useHR();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
+  const serviceContent = useRef<HTMLDivElement>(null);
+  const showSalaryAnchors = role === 2 && category === "薪酬管理";
   const [onlyFavorite, setOnlyFavorite] = useState(false);
   const list = services.filter(
     (s) =>
       s.role === role &&
-      (category === "全部" || s.category === category) &&
+      (category === "全部" || (role === 2 && category === "薪酬管理" ? salaryServiceCategories.some(item => item === s.category) : s.category === (role === 2 && category === "招聘管理" ? "招聘" : category))) &&
       (!onlyFavorite || favorites.includes(s.id)) &&
       `${s.name}${s.description}`.includes(query),
   );
@@ -998,12 +1002,14 @@ export function HallPage() {
       </div>
       </HeaderControls>
       {hallCategories[role].length > 1 && <div className="mb-5 flex flex-wrap gap-1.5" role="group" aria-label="服务分类">
-        {hallCategories[role].map(item => <Button key={item} size="sm" variant={category === item ? "secondary" : "ghost"} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</Button>)}
+        {hallCategories[role].map(item => <Button key={item} size="sm" disabled={role === 2 && (item === "人事服务" || item === "人才管理")} variant={category === item ? "secondary" : "ghost"} aria-pressed={category === item} onClick={() => { setCategory(item); }}>{item}</Button>)}
       </div>}
+      <div className={cn(showSalaryAnchors && "grid grid-cols-[minmax(0,1fr)_108px] items-start gap-5 max-[900px]:gap-3")}>
+      <div ref={serviceContent} className="@container min-w-0">
       {categories.map((cat) => (
-        <section key={cat} className="mb-5">
-          <h2 className="mb-2 text-sm font-medium">{cat}</h2>
-          <div className="grid grid-cols-4 gap-3 max-[1100px]:grid-cols-3 max-[900px]:grid-cols-2">
+        <section key={cat} id={showSalaryAnchors ? `salary-service-${categories.indexOf(cat)}` : undefined} data-service-category={cat} className="mb-5 scroll-mt-4">
+          {role !== 1 && <h2 className="mb-2 text-sm font-medium">{cat}</h2>}
+          <div className={cn("grid gap-3", showSalaryAnchors ? "grid-cols-1 @min-[330px]:grid-cols-2 @min-[650px]:grid-cols-3 @min-[900px]:grid-cols-4" : "grid-cols-4 max-[1100px]:grid-cols-3 max-[900px]:grid-cols-2")}>
             {list
               .filter((s) => s.category === cat)
               .map((s) => {
@@ -1036,7 +1042,7 @@ export function HallPage() {
                       className="pointer-events-none absolute right-0 h-7 min-w-14 bg-foreground px-2 text-xs text-background opacity-0 hover:bg-foreground/90 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
                       onClick={() => {
                         setHomeExpert(s.agent!.expert);
-                        setHomeAgentCategory(s.agent!.category);
+                        setHomeAgentCategory(s.agent!.category ?? null);
                         setHomeDraft("");
                         setHomeContext([]);
                         window.dispatchEvent(new CustomEvent("hihr:compose"));
@@ -1073,6 +1079,9 @@ export function HallPage() {
           </div>
         </section>
       ))}
+      </div>
+      {showSalaryAnchors && categories.length > 0 && <ServiceCategoryAnchors categories={categories} contentRef={serviceContent} />}
+      </div>
       {!list.length && (
         <p className="py-20 text-center text-sm text-muted-foreground">
           没有找到服务，试试其他关键词或取消常用筛选。
@@ -1275,7 +1284,7 @@ export function ServicePage() {
                   />
                 </label>
                 <p className="text-xs text-muted-foreground">
-                  申请人：王乐山 · 领取方式：电子证明
+                  申请人：张益达 · 领取方式：电子证明
                 </p>
                 {confirm && (
                   <p className="rounded-lg bg-muted p-4 text-sm">

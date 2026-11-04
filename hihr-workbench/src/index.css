@@ -65,13 +65,47 @@
 
 .briefing-banner {
   container-type: inline-size;
-  border-color: color-mix(in oklch, var(--primary) 14%, var(--border));
-  background: linear-gradient(110deg, color-mix(in oklch, var(--primary) 6%, var(--card)), color-mix(in oklch, var(--primary) 12%, var(--card)));
+  border-color: color-mix(in oklch, var(--success) 22%, var(--border));
+  background: linear-gradient(90deg, color-mix(in oklch, var(--success) 10%, var(--card)) 0%, color-mix(in oklch, var(--success) 7%, var(--card)) 50%, color-mix(in oklch, var(--success) 4%, var(--card)) 100%);
 }
-.briefing-copy { width: calc(100% - 144px); }
+.briefing-window {
+  background: color-mix(in oklch, var(--success) 20%, var(--card));
+  color: color-mix(in oklch, var(--primary) 72%, var(--foreground));
+}
+.briefing-copy { width: 69%; }
+.briefing-topics {
+  position: absolute;
+  inset: 0 -52px 0 auto;
+  display: flex;
+  width: 44%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, black 35%, black 76%, transparent);
+  opacity: .62;
+}
+.briefing-topic-row { display: flex; width: max-content; gap: 12px; }
+.briefing-topic-row:nth-child(2) { transform: translateX(-38px); }
+.briefing-topic-row:nth-child(3) { transform: translateX(-12px); }
+.briefing-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  border: 1px solid color-mix(in oklch, var(--card) 75%, transparent);
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: color-mix(in oklch, var(--card) 86%, transparent);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 18px;
+  box-shadow: 0 2px 5px color-mix(in oklch, var(--foreground) 5%, transparent);
+}
 @container (max-width: 560px) {
   .briefing-copy { width: 100%; }
-  .briefing-illustration { opacity: .12; pointer-events: none; }
+  .briefing-topics { display: none; }
 }
 
 .hairline-briefing {
@@ -102,7 +136,7 @@
 
 /* Panorama layouts respond to the available work area, including an open Copilot. */
 .panorama-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-.panorama-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.panorama-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
 .panorama-trend { position: relative; height: 172px; margin: 20px 0 0; border-bottom: 1px solid var(--border); }
 @container (max-width: 1000px) { .panorama-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @container (max-width: 660px) {
@@ -115,23 +149,44 @@
 @container (max-width: 380px) { .panorama-metrics[data-count="4"] { grid-template-columns: minmax(0, 1fr); } }
 
 .panorama-insight {
-  --insight-lavender: hsl(252 75% 87%);
+  --insight-mint: hsl(164 45% 87%);
   --insight-blue: hsl(216 90% 88%);
-  --insight-peach: hsl(24 85% 91%);
-  --insight-accent: hsl(247 30% 54%);
-  border-color: color-mix(in oklch, var(--insight-lavender) 48%, var(--border));
+  --insight-ice: hsl(202 75% 96%);
+  --insight-accent: hsl(214 55% 49%);
+  border-color: color-mix(in oklch, var(--insight-mint) 48%, var(--border));
   background:
-    radial-gradient(ellipse at 2% 8%, color-mix(in oklch, var(--insight-lavender) 52%, transparent), transparent 60%),
+    radial-gradient(ellipse at 2% 8%, color-mix(in oklch, var(--insight-mint) 52%, transparent), transparent 60%),
     radial-gradient(ellipse at 92% 12%, color-mix(in oklch, var(--insight-blue) 58%, transparent), transparent 58%),
-    radial-gradient(ellipse at 58% 120%, color-mix(in oklch, var(--insight-peach) 45%, transparent), transparent 65%),
+    radial-gradient(ellipse at 58% 120%, color-mix(in oklch, var(--insight-ice) 45%, transparent), transparent 65%),
     var(--card);
   box-shadow: inset 0 1px 0 color-mix(in oklch, var(--card) 85%, transparent), 0 3px 16px color-mix(in oklch, var(--insight-accent) 4%, transparent);
 }
 .panorama-insight-icon { color: var(--insight-accent); }
 .panorama-insight-dot { background: color-mix(in oklch, var(--insight-accent) 65%, transparent); }
 .dark .panorama-insight {
-  --insight-lavender: hsl(252 30% 24%);
+  --insight-mint: hsl(164 28% 23%);
   --insight-blue: hsl(216 36% 22%);
-  --insight-peach: hsl(24 22% 22%);
-  --insight-accent: hsl(247 55% 77%);
+  --insight-ice: hsl(204 22% 20%);
+  --insight-accent: hsl(212 65% 77%);
 }
+
+.panorama-metrics[data-count="6"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@container (max-width: 660px) { .panorama-metrics[data-count="6"] { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 380px) { .panorama-metrics[data-count="6"] { grid-template-columns: minmax(0, 1fr); } }
+
+@keyframes welcome-type-character {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.welcome-type-character { animation: welcome-type-character 1ms step-end both; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome-type-character { animation: none; }
+}
+
+.talent-nine-cell { --cell-tint: var(--info); background: color-mix(in oklch, var(--cell-tint) 10%, var(--card)); }
+.talent-nine-cell--blue { --cell-tint: var(--info); }
+.talent-nine-cell--cyan { --cell-tint: var(--primary); }
+.talent-nine-cell--green { --cell-tint: var(--success); }
+.talent-nine-cell--amber { --cell-tint: var(--warning); }
+.talent-nine-cell--red { --cell-tint: var(--destructive); }
+.talent-nine-number { background: color-mix(in oklch, var(--cell-tint) 80%, var(--foreground)); color: var(--primary-foreground); }

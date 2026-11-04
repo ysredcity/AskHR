@@ -6,7 +6,7 @@ import {
   LayoutGrid,
   CalendarDays,
   FileCheck2,
-  UsersRound,
+  createLucideIcon,
   ChartNoAxesCombined,
   ArrowUpRight,
   GraduationCap,
@@ -15,6 +15,14 @@ import {
   HeartHandshake,
   Building2,
 } from "lucide-react";
+const TeamGroup = createLucideIcon("TeamGroup", [
+  ["circle", { cx: "12", cy: "7", r: "3", key: "center" }],
+  ["circle", { cx: "4", cy: "9", r: "2", key: "left" }],
+  ["circle", { cx: "20", cy: "9", r: "2", key: "right" }],
+  ["path", { d: "M7 21v-3a5 5 0 0 1 10 0v3", key: "center-body" }],
+  ["path", { d: "M1 20v-3a3 3 0 0 1 4-2.83M23 20v-3a3 3 0 0 0-4-2.83", key: "side-bodies" }],
+]);
+
 export const hrIcons = {
   home: House,
   tasks: ListTodo,
@@ -24,7 +32,7 @@ export const hrIcons = {
   hall: LayoutGrid,
   leave: CalendarDays,
   proof: FileCheck2,
-  team: UsersRound,
+  team: TeamGroup,
   report: ChartNoAxesCombined,
   generic: ArrowUpRight,
   learning: GraduationCap,
@@ -35,7 +43,6 @@ export const hrIcons = {
 };
 
 export const serviceIconColors: Record<string, string> = {
-  "人事情服务": "bg-info/10 text-info",
   "人事服务": "bg-info/10 text-info",
   "薪酬福利": "bg-success/10 text-success",
   "绩效与改进": "bg-warning/10 text-warning-foreground",

@@ -168,6 +168,7 @@ export function AgentShell({
   const [isResizing, setIsResizing] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
+  const resizeCleanupRef = useRef<(() => void) | null>(null);
   const drawerTouchStart = useRef<number | null>(null);
   const panelCloseTimer = useRef<ReturnType<typeof window.setTimeout> | null>(
     null,
@@ -434,27 +435,65 @@ export function AgentShell({
       : () => setPanelFullscreenRequested((value) => !value),
   };
 
+  useEffect(() => () => resizeCleanupRef.current?.(), []);
+
+  useEffect(() => {
+    if (!panelOpen || panelFullscreen) resizeCleanupRef.current?.();
+  }, [panelOpen, panelFullscreen]);
+
   const startResizing = useCallback(
-    (event: React.PointerEvent) => {
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.button !== 0 || !event.isPrimary) return;
+      const bounds = shellRef.current?.getBoundingClientRect();
+      if (!bounds) return;
       event.preventDefault();
-      setIsResizing(true);
+      resizeCleanupRef.current?.();
+      const handle = event.currentTarget;
+      const pointerId = event.pointerId;
+      let frame: number | null = null;
+      let pendingWidth: number | null = null;
+      let stopped = false;
 
-      const resize = (pointerEvent: PointerEvent) => {
-        const bounds = shellRef.current?.getBoundingClientRect();
-        if (!bounds) return;
-
-        const nextWidth = bounds.right - pointerEvent.clientX;
-        setPanelWidth(clampPanelWidth(nextWidth, bounds.width, sidebarDocked));
+      const flush = () => {
+        frame = null;
+        if (pendingWidth !== null) {
+          setPanelWidth(pendingWidth);
+          pendingWidth = null;
+        }
       };
-
       const stop = () => {
+        if (stopped) return;
+        stopped = true;
+        if (frame !== null) cancelAnimationFrame(frame);
+        flush();
+        window.removeEventListener("pointermove", resize, true);
+        window.removeEventListener("pointerup", finish, true);
+        window.removeEventListener("pointercancel", finish, true);
+        window.removeEventListener("blur", stop);
+        handle.removeEventListener("lostpointercapture", stop);
+        if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+        resizeCleanupRef.current = null;
         setIsResizing(false);
-        window.removeEventListener("pointermove", resize);
-        window.removeEventListener("pointerup", stop);
+      };
+      const finish = (pointerEvent: PointerEvent) => {
+        if (pointerEvent.pointerId === pointerId) stop();
+      };
+      const resize = (pointerEvent: PointerEvent) => {
+        if (pointerEvent.pointerId !== pointerId) return;
+        // A release outside the window must not leave a stale drag active.
+        if (pointerEvent.buttons === 0) { stop(); return; }
+        pendingWidth = clampPanelWidth(bounds.right - pointerEvent.clientX, bounds.width, sidebarDocked);
+        if (frame === null) frame = requestAnimationFrame(flush);
       };
 
-      window.addEventListener("pointermove", resize);
-      window.addEventListener("pointerup", stop);
+      handle.setPointerCapture(pointerId);
+      resizeCleanupRef.current = stop;
+      setIsResizing(true);
+      window.addEventListener("pointermove", resize, true);
+      window.addEventListener("pointerup", finish, true);
+      window.addEventListener("pointercancel", finish, true);
+      window.addEventListener("blur", stop);
+      handle.addEventListener("lostpointercapture", stop);
     },
     [sidebarDocked],
   );
@@ -472,7 +511,7 @@ export function AgentShell({
             ref={shellRef}
             className={cn(
               "relative flex h-full w-full overflow-hidden",
-              isResizing && "cursor-col-resize select-none",
+              isResizing && "cursor-col-resize select-none [&_iframe]:pointer-events-none",
             )}
           >
             {!salaryWorkspace && sidebarCanDock && (

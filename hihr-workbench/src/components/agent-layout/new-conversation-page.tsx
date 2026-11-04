@@ -15,6 +15,8 @@ import { Composer, type ContextItem } from "./composer";
 import { useHR } from "@/features/hr/context";
 import { skillCategories, categoryExperts } from "@/features/hr/data";
 import { Tasks } from "@/features/hr/views";
+const welcomeText = "嘿！有什么能帮到你的？";
+
 type Props = {
   config: Pick<
     AppConfig,
@@ -55,8 +57,8 @@ export function NewConversationPage({
         )}
       </header>
       <div className="min-h-0 flex-1 overflow-y-auto px-4">
-        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col pb-8 pt-[clamp(24px,5vh,48px)]">
-          <h1 className="text-center text-2xl font-medium tracking-tight">嘿！有什么能帮到你的？</h1>
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col pb-8 pt-[clamp(48px,8vh,80px)]">
+          <h1 aria-label={welcomeText} className="text-center text-2xl font-medium tracking-tight"><span aria-hidden="true">{Array.from(welcomeText).map((character, index) => <span key={index} className="welcome-type-character" style={{ animationDelay: `${index * 65}ms` }}>{character}</span>)}</span></h1>
           <div className="mt-6">
             <Composer
               contextItems={homeContext}

@@ -6,8 +6,8 @@ const storageKey = 'askhr:appearance-experiment';
 function initialAppearance(): Appearance {
   const query = new URLSearchParams(window.location.search).get('appearance');
   if (query === 'classic' || query === 'glass') return query;
-  try { return localStorage.getItem(storageKey) === 'classic' ? 'classic' : 'glass'; }
-  catch { return 'glass'; }
+  try { return localStorage.getItem(storageKey) === 'glass' ? 'glass' : 'classic'; }
+  catch { return 'classic'; }
 }
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {

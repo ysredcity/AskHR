@@ -1,4 +1,4 @@
-import { Archive, House, Gem, Palette } from "lucide-react";
+import { Archive, House, Gem, Palette, Bell } from "lucide-react";
 import { AgentAvatar } from "./resource-visuals";
 import { useAppearance } from "@/features/appearance/context";
 import { useHR } from "@/features/hr/context";
@@ -173,6 +173,7 @@ export function AgentSidebar({
 }: AgentSidebarProps) {
   const { route, setRoute, archived, tasks } = useHR();
   const { appearance, chooseAppearance } = useAppearance();
+  const hasPendingTasks = tasks.some(task => !task.done);
   const visible = (items: Conversation[]) => items.filter(item => !archived.includes(item.id));
   const [pinnedOpen, setPinnedOpen] = useState(true)
   const [conversationsOpen, setConversationsOpen] = useState(true)
@@ -222,7 +223,7 @@ export function AgentSidebar({
         <SidebarGroup className={cn("gap-0.5 p-2", drawer && "gap-2 p-3")}>
           <SidebarMenu>
             <PrimaryMenuItem drawer={drawer} icon={House} label="首页 · 新对话" outline onClick={() => { onNewChat(); onClose?.(); }} />
-            {(["employee", "team", "organization", "tasks", "hall"] as const).filter(id => id === "tasks" || id === "hall" || authorizedWorkspaces.includes(id)).map(id => <PrimaryMenuItem key={id} count={id === "tasks" ? tasks.filter(task => !task.done).length : undefined} active={route === id || (id === "hall" && route === "compensation")} drawer={drawer} icon={hrIcons[id]} label={{employee: "个人全景", team: "团队全景", organization: "组织全景", tasks: "待办事项", hall: "服务大厅"}[id]} onClick={() => { setRoute(id); onClose?.(); }} />)}
+            {(["hall", "employee", "team", "organization"] as const).filter(id => id === "hall" || authorizedWorkspaces.includes(id)).map(id => <PrimaryMenuItem key={id} active={route === id || (id === "hall" && route === "compensation")} drawer={drawer} icon={hrIcons[id]} label={{employee: "我的成长", team: "团队洞察", organization: "HR数据运营", hall: "服务大厅"}[id]} onClick={() => { setRoute(id); onClose?.(); }} />)}
           </SidebarMenu>
         </SidebarGroup>
 
@@ -268,6 +269,20 @@ export function AgentSidebar({
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger render={
+            <IconButton
+              aria-label={hasPendingTasks ? "待办事项，有待处理" : "待办事项"}
+              aria-current={route === "tasks" ? "page" : undefined}
+              className={cn("relative text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", route === "tasks" && "bg-sidebar-accent text-sidebar-accent-foreground", drawer && "size-10 rounded-[10px] [&_svg]:size-5")}
+              onClick={() => { setRoute("tasks"); onClose?.(); }}
+            >
+              <Bell aria-hidden="true" />
+              {hasPendingTasks && <span aria-hidden="true" className="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" />}
+            </IconButton>
+          } />
+          <TooltipContent side="top">待办事项{hasPendingTasks ? " · 有待处理" : ""}</TooltipContent>
+        </Tooltip>
       </SidebarFooter>
 
     </ShadcnSidebar>
