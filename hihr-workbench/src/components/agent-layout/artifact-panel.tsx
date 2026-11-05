@@ -28,7 +28,7 @@ export function ArtifactPanel({ activeTabId, fullscreen, hideTabs = false, onClo
   if (!view) return null
   const { Body, Toolbar } = panelContainers[view.type] as PanelContainer
   const globalActions = <><PanelHeaderAction label={fullscreen ? "退出全屏" : "全屏"} onClick={onToggleFullscreen}>{fullscreen ? <Minimize2 /> : <MoveDiagonal />}</PanelHeaderAction><PanelHeaderAction label="关闭" onClick={onClose}><X /></PanelHeaderAction></>
-  return <aside aria-label="独立面板" className="flex h-full min-w-80 flex-1 flex-col bg-background">
+  return <aside aria-label="独立面板" data-slot="artifact-panel" data-fullscreen={fullscreen || undefined} className="flex h-full min-w-80 flex-1 flex-col bg-background">
     {!hideTabs && <PanelHeader activeTabId={view.id} fullscreen={fullscreen} onClose={onClose} onCloseTab={onCloseTab} onSelectTab={onSelectTab} onToggleFullscreen={onToggleFullscreen} tabs={tabs} />}
     {Toolbar && <Toolbar view={view} actions={hideTabs ? globalActions : undefined} />}
     <Body view={view} onNavigate={onNavigate} />

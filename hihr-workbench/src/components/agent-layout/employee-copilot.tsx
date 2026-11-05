@@ -48,7 +48,7 @@ export function EmployeeCopilot({ mode, onModeChange, config, conversation, hist
     hr.setCopilotContext([]);
     hr.setCopilotExpert(null);
   };
-  return <aside id="hr-copilot" aria-label="AskHR AI 对话" className={cn("flex h-full min-h-0 w-full flex-col bg-background-desktop", mode === "sidebar" ? "border-l" : "overflow-hidden rounded-2xl border shadow-xl max-[739px]:rounded-none")}>
+  return <aside id="hr-copilot" aria-label="AskHR AI 对话" data-slot="copilot-panel" data-mode={mode} className={cn("flex h-full min-h-0 w-full flex-col bg-background-desktop", mode === "sidebar" ? "border-l" : "overflow-hidden rounded-2xl border shadow-xl max-[739px]:rounded-none")}>
     <header className="flex h-13 shrink-0 items-center gap-1 border-b px-3">
       {historyOpen ? <>
         <Button size="icon-sm" variant="ghost" aria-label="返回对话" title="返回" onClick={() => setHistoryOpen(false)}><ArrowLeft /></Button>
@@ -74,7 +74,7 @@ export function EmployeeCopilot({ mode, onModeChange, config, conversation, hist
       <Button size="icon-sm" variant="ghost" aria-label="关闭 AI 对话" title="关闭" onClick={onClose}><X /></Button>
       </>}
     </header>
-    {historyOpen && <div className="min-h-0 flex-1 overflow-y-auto bg-card px-2 py-3">
+    {historyOpen && <div data-slot="copilot-history" className="min-h-0 flex-1 overflow-y-auto bg-card px-2 py-3">
       <ConversationHistoryList activeConversationId={conversation?.id} conversations={history} pinnedConversations={pinnedHistory} onPinnedChange={onPinnedChange} onRename={onRename} readConversationIds={readConversationIds} onSelectConversation={item => { setHistoryOpen(false); onExpand(item); onClose(); }} />
       {!history.length && !pinnedHistory.length && <p className="px-3 py-4 text-sm text-muted-foreground">暂无历史对话</p>}
     </div>}

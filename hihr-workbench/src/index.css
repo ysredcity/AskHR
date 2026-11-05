@@ -198,3 +198,12 @@
   box-shadow: 0 3px 12px -4px color-mix(in oklch, var(--foreground) 12%, transparent);
   transition: box-shadow 180ms ease, border-color 180ms ease;
 }
+
+/* 中间工作区的滚动条只在鼠标悬停或键盘聚焦该区域时显示；颜色透明但保留轨道宽度，出现时不挤动内容。 */
+[data-slot="workspace-scroll"] {
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 160ms ease;
+}
+[data-slot="workspace-scroll"]:is(:hover, :has(:focus-visible)) {
+  scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent) transparent;
+}

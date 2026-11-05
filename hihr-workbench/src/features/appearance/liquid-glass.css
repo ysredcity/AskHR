@@ -35,7 +35,7 @@
   --glass-elevation: inset 0 1px 0 color-mix(in oklch, var(--glass-white) 16%, transparent), 0 0 0 1px color-mix(in oklch, var(--glass-white) 5%, transparent);
 }
 
-:root[data-askhr-appearance="glass"] [data-slot="sidebar-wrapper"] {
+:root[data-askhr-appearance="glass"] :is([data-slot="sidebar-wrapper"], [data-slot="artifact-overlay"], [data-slot="copilot-overlay"]) {
   background:
     radial-gradient(ellipse at 62% 28%, color-mix(in oklch, var(--glass-violet) 42%, transparent), transparent 48%),
     radial-gradient(ellipse at 40% 0%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 55%),
@@ -153,13 +153,51 @@
     radial-gradient(ellipse at 94% 0%, color-mix(in oklch, var(--glass-blue) 32%, transparent), transparent 55%),
     linear-gradient(180deg, color-mix(in oklch, var(--card) 60%, transparent), color-mix(in oklch, var(--card) 94%, transparent) 90%);
 }
-:root[data-askhr-appearance="glass"] #hr-copilot {
-  background: color-mix(in oklch, var(--card) 54%, transparent);
-  border-color: var(--glass-border);
-  box-shadow: -6px 0 30px -18px color-mix(in oklch, var(--glass-shade) 20%, transparent);
-  backdrop-filter: blur(28px) saturate(130%);
-  -webkit-backdrop-filter: blur(28px) saturate(130%);
+:root[data-askhr-appearance="glass"] :is([data-slot="copilot-panel"], [data-slot="artifact-panel"]) {
+  /* 右侧面板沿用左侧导航的悬浮形态：外边距、圆角、玻璃边框与高光。
+     材质以白色为主：高不透明度 + 低饱和模糊，背景渐变只隐约透出，不在面板上形成明显色块。 */
+  margin: 10px 10px 10px 0;
+  width: calc(100% - 10px);
+  height: calc(100% - 20px);
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  background: linear-gradient(180deg, color-mix(in oklch, var(--card) 92%, transparent), color-mix(in oklch, var(--card) 86%, transparent));
+  box-shadow: var(--glass-elevation);
+  backdrop-filter: blur(32px) saturate(110%);
+  -webkit-backdrop-filter: blur(32px) saturate(110%);
 }
+/* 浮窗与全屏覆盖在业务内容之上，底色更实，避免背后内容干扰阅读。 */
+:root[data-askhr-appearance="glass"] [data-slot="copilot-panel"][data-mode="floating"] {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: color-mix(in oklch, var(--card) 94%, transparent);
+  box-shadow: var(--glass-elevation), 0 24px 60px -20px color-mix(in oklch, var(--glass-shade) 32%, transparent);
+}
+:root[data-askhr-appearance="glass"] [data-slot="artifact-panel"][data-fullscreen] {
+  margin: 10px;
+  width: calc(100% - 20px);
+}
+@media (max-width: 739px) {
+  :root[data-askhr-appearance="glass"] :is([data-slot="copilot-panel"], [data-slot="copilot-panel"][data-mode="floating"]) {
+    margin: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    border-radius: 24px;
+  }
+}
+:root[data-askhr-appearance="glass"] :is([data-slot="copilot-panel"], [data-slot="artifact-panel"]) > header,
+:root[data-askhr-appearance="glass"] [data-slot="artifact-panel"] :is(.border-b, [role="toolbar"]) {
+  border-bottom-color: color-mix(in oklch, var(--border) 55%, transparent);
+}
+:root[data-askhr-appearance="glass"] [data-slot="artifact-panel"] > .bg-background,
+:root[data-askhr-appearance="glass"] [data-slot="copilot-history"] {
+  background: transparent;
+}
+/* 面板自带玻璃边框，拖拽手柄的常驻竖线去掉，悬停与拖拽时的渐变高亮保留。 */
+:root[data-askhr-appearance="glass"] [data-slot="panel-resize-line"] { background-color: transparent; }
 
 /* This compact comparison control exists only on the experimental branch. */
 @media (prefers-reduced-motion: reduce) {
@@ -167,10 +205,10 @@
   :root[data-askhr-appearance="glass"] [data-slot="service-card"]:hover { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, #hr-copilot) { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, [data-slot="copilot-panel"], [data-slot="artifact-panel"]) { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 @supports not (backdrop-filter: blur(1px)) {
-  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, #hr-copilot) { background: var(--card); }
+  :root[data-askhr-appearance="glass"] :is([data-slot="sidebar"], [data-slot="card"], [data-slot="home-tasks"], [data-slot="service-card"], [data-slot="composer-surface"], [data-slot="employee-metric"], .employee-surface, [data-slot="copilot-panel"], [data-slot="artifact-panel"]) { background: var(--card); }
 }
 
 /* Personal panorama and tasks use the same material without changing their controls. */

@@ -576,7 +576,7 @@ export function AgentShell({
                     </span>}
                   </header>}
 
-                  <div className="min-h-0 flex-1 overflow-y-auto">
+                  <div data-slot="workspace-scroll" className="min-h-0 flex-1 overflow-y-auto">
                     <HRWorkspace headerTarget={hrHeaderTarget} />
                   </div>
                 </section>
@@ -615,7 +615,7 @@ export function AgentShell({
               )}
 
               {copilotVisible && (
-                <div className={cn("shrink-0", below740 ? "absolute inset-0 z-30" : copilotMode === "floating" ? "absolute bottom-4 right-4 z-30 h-[min(600px,calc(100dvh-32px))] w-[400px]" : "w-[400px]")}>
+                <div data-slot={below740 ? "copilot-overlay" : undefined} className={cn("shrink-0", below740 ? "absolute inset-0 z-30" : copilotMode === "floating" ? "absolute bottom-4 right-4 z-30 h-[min(600px,calc(100dvh-32px))] w-[400px]" : "w-[400px]")}>
                   <EmployeeCopilot
                     mode={copilotMode}
                     onModeChange={setCopilotMode}
@@ -674,6 +674,7 @@ export function AgentShell({
                   必须同时把 background-color 置为透明，否则底色会从渐变透明处透出来，两端就不是 0% 透明度。
                 */}
                     <span
+                      data-slot="panel-resize-line"
                       className={cn(
                         "absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-border transition-all",
                         "group-hover/resize:w-0.5 group-hover/resize:bg-transparent group-hover/resize:bg-linear-to-b group-hover/resize:from-transparent group-hover/resize:via-primary group-hover/resize:to-transparent",
@@ -739,6 +740,7 @@ export function AgentShell({
                 role="dialog"
                 aria-modal="true"
                 aria-label="产物预览"
+                data-slot="artifact-overlay"
                 className={cn(
                   "absolute inset-0 z-50 bg-background transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none starting:translate-x-4 starting:opacity-0",
                   panelVisible
