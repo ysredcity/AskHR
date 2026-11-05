@@ -4,7 +4,7 @@ AskHR 是面向企业内部人资业务的桌面端交互原型，以统一 AI �
 
 当前发布版本：**1.1.1**，Git 标签 `v1.1.1`，发布记录见 [GitHub Release](https://github.com/ysredcity/AskHR/releases/tag/v1.1.1)。历史版本 [v1.1.0](https://github.com/ysredcity/AskHR/releases/tag/v1.1.0)、[v1.0.0](https://github.com/ysredcity/AskHR/releases/tag/v1.0.0) 保留为回退点。
 
-仓库：[ysredcity/AskHR](https://github.com/ysredcity/AskHR)（私有）。当前重大决策与变更记录见 [CONTEXT.md](./CONTEXT.md)。本文反映当前代码；早期需求、计划及子目录说明可能保留旧名称或旧交互，发生冲突时以当前代码和本文为准。
+仓库：[ysredcity/AskHR](https://github.com/ysredcity/AskHR)（私有）。继续开发时的当前规则见 [askhr-prototype skill](./skills/askhr-prototype/SKILL.md)，决策历史与变更记录见 [CONTEXT.md](./CONTEXT.md)。本文反映当前代码；早期需求、计划及子目录说明可能保留旧名称或旧交互，发生冲突时以当前代码和本文为准。
 
 ## 本地运行
 
@@ -59,7 +59,9 @@ npm run dev -- --host 127.0.0.1 --port 5174
 ```text
 HR-Portal/
 ├── README.md                     # 项目入口说明
-├── CONTEXT.md                    # 当前约束、重大决策和历史变更
+├── CONTEXT.md                    # 决策历史与变更记录
+├── AGENTS.md / CLAUDE.md         # AI 工具入口，指向 skill
+├── skills/askhr-prototype/       # 开发 skill：当前规则、检查与截图脚本、发版步骤
 ├── docs/                         # 需求、方案、汇报与实施计划
 └── hihr-workbench/               # 唯一前端工程
     ├── src/
@@ -116,13 +118,13 @@ cd hihr-workbench
 npm run gate
 ```
 
-`gate` 依次运行 lint、Token 检查、场景检查、TypeScript 与 Vite 构建。也可独立执行 `npm run lint`、`npm run check:tokens`、`npm run check:scripts`、`npm run build`。构建产物为 `hihr-workbench/dist/`，通过 `npm run preview` 本地查看；当前不自动部署。
+`gate` 依次运行 lint、Token 检查、场景检查、AskHR 规则检查（Glass 选择器挂载、已撤回功能）、TypeScript 与 Vite 构建。也可独立执行 `npm run lint`、`npm run check:tokens`、`npm run check:scripts`、`npm run check:askhr`、`npm run build`。界面截图自检见 [release.md](./skills/askhr-prototype/references/release.md#截图自检)。构建产物为 `hihr-workbench/dist/`，通过 `npm run preview` 本地查看；当前不自动部署。
 
 涉及交互的改动还需实际验证：主应用发送、GUI 预填 Copilot、历史会话打开、产物打开与关闭、窄窗口及主题切换。只改文档时核对链接与事实即可。
 
 ## 团队协作
 
-先读 [CONTEXT.md](./CONTEXT.md) 再进行较大调整。基线为提交 `4ba5b2b`，标签 `baseline/askhr-2026-11-04`，位于 `main`。后续样式探索使用独立分支，例如：
+先读 [askhr-prototype skill](./skills/askhr-prototype/SKILL.md) 和 [CONTEXT.md](./CONTEXT.md) 再进行较大调整。使用 AI 工具开发时，工具会通过根目录的 `AGENTS.md` / `CLAUDE.md` 找到 skill。基线为提交 `4ba5b2b`，标签 `baseline/askhr-2026-11-04`，位于 `main`。后续样式探索使用独立分支，例如：
 
 ```sh
 git switch main
