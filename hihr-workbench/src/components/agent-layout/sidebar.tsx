@@ -374,10 +374,11 @@ function PrimaryMenuItem({
   return (
     <SidebarMenuItem className={cn(drawer && "mb-0.5")}>
       <SidebarMenuButton
+        data-primary-entry="true"
         isActive={active}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "h-9 rounded-[10px] px-2 text-sm font-medium text-foreground hover:text-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-foreground",
+          "h-9 rounded-[10px] px-2 text-sm font-medium text-foreground hover:bg-sidebar-accent hover:text-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-foreground",
           outline && "border border-sidebar-border bg-card font-medium shadow-xs hover:bg-sidebar-accent",
           drawer && outline && "mb-2 h-12 justify-center rounded-full",
 

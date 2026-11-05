@@ -116,7 +116,8 @@
   --hairline-lo: color-mix(in oklch, var(--foreground) 20%, var(--card));
 }
 
-.salary-app { background: radial-gradient(ellipse at 40% 0%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 55%), linear-gradient(var(--background-desktop), var(--background)); color: var(--foreground); }
+:root { --salary-home-background: radial-gradient(ellipse at 40% 0%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 55%), linear-gradient(var(--background-desktop), var(--background)); }
+.salary-app { background: var(--salary-home-background); color: var(--foreground); }
 .salary-title { background: linear-gradient(110deg, var(--primary), var(--success), var(--warning)); background-clip: text; color: transparent; }
 .salary-report h1 { font-size: 24px; font-weight: 600; line-height: 1.5; margin-bottom: 24px; }
 .salary-report h2 { font-size: 16px; font-weight: 600; margin: 24px 0 12px; }
@@ -190,3 +191,10 @@
 .talent-nine-cell--amber { --cell-tint: var(--warning); }
 .talent-nine-cell--red { --cell-tint: var(--destructive); }
 .talent-nine-number { background: color-mix(in oklch, var(--cell-tint) 80%, var(--foreground)); color: var(--primary-foreground); }
+
+/* Home input stays light at rest. */
+.home-composer [data-slot="composer-surface"],
+:root[data-askhr-appearance="glass"] .home-composer [data-slot="composer-surface"] {
+  box-shadow: 0 3px 12px -4px color-mix(in oklch, var(--foreground) 12%, transparent);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
