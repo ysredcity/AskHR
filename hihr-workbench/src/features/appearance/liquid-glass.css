@@ -199,6 +199,54 @@
 /* 面板自带玻璃边框，拖拽手柄的常驻竖线去掉，悬停与拖拽时的渐变高亮保留。 */
 :root[data-askhr-appearance="glass"] [data-slot="panel-resize-line"] { background-color: transparent; }
 
+/* 页面顶部 header：Tabs、行动按钮组与展开导航按钮统一为全圆角玻璃胶囊，同高 36px。 */
+:root[data-askhr-appearance="glass"] main section > header :is([data-slot="tabs-list"], [data-slot="header-actions"]),
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-nav-toggle"] {
+  height: 36px;
+  border: 1px solid var(--glass-border);
+  border-radius: 9999px;
+  background: color-mix(in oklch, var(--card) 50%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-border), 0 2px 8px color-mix(in oklch, var(--glass-shade) 5%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+:root[data-askhr-appearance="glass"] main section > header :is([data-slot="tabs-list"], [data-slot="header-actions"]) { padding: 3px; }
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-actions"] { gap: 2px; }
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-nav-toggle"] { width: 36px; }
+:root[data-askhr-appearance="glass"] main section > header :is([data-slot="tabs-trigger"], [data-slot="tabs-more"], [data-measure="more"]) {
+  border-radius: 9999px;
+  padding-inline: 12px;
+}
+:root[data-askhr-appearance="glass"] main section > header :is([data-slot="tabs-more"], [data-measure="more"]) { padding-inline: 10px; }
+:root[data-askhr-appearance="glass"] main section > header [data-slot="tabs-more"]:hover,
+:root[data-askhr-appearance="glass"] main section > header [data-slot="tabs-more"][data-popup-open] {
+  background: color-mix(in oklch, var(--card) 60%, transparent);
+}
+/* 胶囊内的按钮去掉各自的描边与底色，只保留悬停 / 选中态的内层高亮。 */
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-actions"] [data-slot="button"] {
+  height: 28px;
+  min-width: 28px;
+  border-color: transparent;
+  border-radius: 9999px;
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-actions"] [data-slot="button"]:has(> span) { padding-inline: 12px; }
+:root[data-askhr-appearance="glass"] main section > header [data-slot="header-actions"] [data-slot="button"]:is(:hover, [aria-pressed="true"], [data-variant="secondary"], [data-popup-open]) {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--glass-shade) 12%, transparent), inset 0 1px 0 var(--glass-border);
+}
+
+/* 产物面板顶部 Tab 栏收紧：栏高 52→44px，Tab 36→30px。 */
+:root[data-askhr-appearance="glass"] [data-slot="artifact-panel"] > header { height: 44px; }
+:root[data-askhr-appearance="glass"] [data-slot="panel-tab"] {
+  height: 30px;
+  border-radius: 10px;
+}
+:root[data-askhr-appearance="glass"] [data-slot="panel-tab"][data-active] {
+  background: color-mix(in oklch, var(--secondary) 80%, transparent);
+}
+
 /* This compact comparison control exists only on the experimental branch. */
 @media (prefers-reduced-motion: reduce) {
   :root[data-askhr-appearance="glass"] [data-slot="service-card"] { transition: none; }

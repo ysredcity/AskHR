@@ -2,7 +2,7 @@
 
 AskHR 是面向企业内部人资业务的桌面端交互原型，以统一 AI 对话入口连接个人、团队、HR 数据运营及传统业务服务。当前为同一套 React 工程，包含 AskHR 主应用与产品逻辑上的「薪酬智参」子应用。
 
-当前发布版本：**1.1.0**，Git 标签 `v1.1.0`，发布记录见 [GitHub Release](https://github.com/ysredcity/AskHR/releases/tag/v1.1.0)。历史版本 [v1.0.0](https://github.com/ysredcity/AskHR/releases/tag/v1.0.0) 保留为回退点。
+当前发布版本：**1.1.1**，Git 标签 `v1.1.1`，发布记录见 [GitHub Release](https://github.com/ysredcity/AskHR/releases/tag/v1.1.1)。历史版本 [v1.1.0](https://github.com/ysredcity/AskHR/releases/tag/v1.1.0)、[v1.0.0](https://github.com/ysredcity/AskHR/releases/tag/v1.0.0) 保留为回退点。
 
 仓库：[ysredcity/AskHR](https://github.com/ysredcity/AskHR)（私有）。当前重大决策与变更记录见 [CONTEXT.md](./CONTEXT.md)。本文反映当前代码；早期需求、计划及子目录说明可能保留旧名称或旧交互，发生冲突时以当前代码和本文为准。
 

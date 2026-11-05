@@ -58,6 +58,8 @@ function PanelHeaderAction({ children, label, onClick }: { children: React.React
 function PanelTabItem({ active, closable, onClose, onSelect, tab }: { active: boolean; closable: boolean; onClose: () => void; onSelect: () => void; tab: PanelTab }) {
   const TabIcon = panelContainers[tab.type].icon
   return <div
+    data-slot="panel-tab"
+    data-active={active || undefined}
     className={cn(
       "group flex h-9 min-w-0 max-w-50 shrink-0 items-center gap-1.5 rounded-lg pl-2.5 pr-1.5 text-sm transition-colors",
       active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground",

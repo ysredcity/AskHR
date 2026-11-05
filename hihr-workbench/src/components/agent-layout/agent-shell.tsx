@@ -555,6 +555,7 @@ export function AgentShell({
                         variant="ghost"
                         size="icon"
                         aria-label="展开导航"
+                        data-slot="header-nav-toggle"
                         onClick={openSidebar}
                       >
                         <IndentIncrease className="size-4" />

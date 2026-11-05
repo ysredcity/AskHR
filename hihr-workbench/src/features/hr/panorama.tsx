@@ -1,17 +1,15 @@
 import { TalentNineGrid } from "./talent-nine-grid";
 import { useEffect, useRef, useState } from 'react';
-import { Building2, CalendarDays, ChevronDown, Info, Sparkles, UsersRound } from 'lucide-react';
+import { Building2, CalendarDays, Info, Sparkles, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useHR } from './context';
-import { HeaderControls } from './header-controls';
+import { HeaderControls, HeaderTabs } from './header-controls';
 import { panoramaPages, panoramaSnapshot, type PanoramaKind, type PanoramaMetric, type PanoramaPage, type PanoramaPanel, type TalentMember } from './panorama-data';
 
 export function PanoramaPageView({ kind }: { kind: PanoramaKind }) {
@@ -54,27 +52,7 @@ export function PanoramaPageView({ kind }: { kind: PanoramaKind }) {
 }
 
 function PanoramaTabs({ pages, value, onChange }: { pages: PanoramaPage[]; value: string; onChange: (id: string) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  const total = pages.reduce((sum, page) => sum + page.label.length * 14 + 28, 8);
-  let visible = pages;
-  if (width && total > width) {
-    visible = pages.reduce<{ pages: PanoramaPage[]; used: number }>((acc, page) => {
-      const next = acc.used + page.label.length * 14 + 28;
-      return next > width && acc.pages.length ? acc : { pages: [...acc.pages, page], used: next };
-    }, { pages: [], used: 78 }).pages;
-    const active = pages.find(page => page.id === value)!;
-    if (!visible.includes(active)) visible = [...visible.slice(0, -1), active];
-  }
-  const rest = pages.filter(page => !visible.includes(page));
-  return <div ref={ref} className="flex w-full min-w-0 items-center gap-1 overflow-hidden"><Tabs value={value} onValueChange={v => onChange(String(v))} className="min-w-0"><TabsList className="max-w-full">{visible.map(page => <TabsTrigger key={page.id} value={page.id} className="shrink-0">{page.label}</TabsTrigger>)}</TabsList></Tabs>{rest.length > 0 && <DropdownMenu><DropdownMenuTrigger render={<Button size="sm" variant="ghost" className="shrink-0" />}>更多<ChevronDown className="size-3.5" /></DropdownMenuTrigger><DropdownMenuContent align="start">{rest.map(page => <DropdownMenuItem key={page.id} onClick={() => onChange(page.id)}>{page.label}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>}</div>;
+  return <HeaderTabs items={pages.map(page => ({ value: page.id, label: page.label }))} value={value} onChange={onChange} />;
 }
 
 function DashboardPanel({ panel, onAsk, onMemberAsk }: { panel: PanoramaPanel; onAsk?: () => void; onMemberAsk?: (member: TalentMember) => void }) {

@@ -2,7 +2,7 @@ import { ServiceCategoryAnchors } from "./service-category-anchors";
 import CompensationApp from "@/features/compensation/compensation-app";
 import { EmployeeSurface, EmployeeHighlight } from "./employee-visual";
 import { useRef, useState, type ReactNode } from "react";
-import { HeaderControls } from "./header-controls";
+import { HeaderActions, HeaderControls, HeaderTabs } from "./header-controls";
 import { PanoramaPageView } from "./panorama";
 import {
   ArrowLeft,
@@ -23,7 +23,6 @@ import {
   Star,
   Upload,
 } from "lucide-react";
-import { Tabs as ShadcnTabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
@@ -88,7 +87,7 @@ function Tabs({
   value: string;
   onChange: (v: string) => void;
 }) {
-  return <ShadcnTabs value={value} onValueChange={v => onChange(String(v))} className="mb-6 overflow-x-auto"><TabsList>{items.map(item => <TabsTrigger key={item} value={item}>{item}</TabsTrigger>)}</TabsList></ShadcnTabs>;
+  return <HeaderTabs items={items.map(item => ({ value: item, label: item }))} value={value} onChange={onChange} />;
 }
 function DetailsButton({ label }: { label: string }) {
   return <Button variant="ghost" size="xs" className="shrink-0 font-normal text-muted-foreground hover:text-foreground" aria-label={`查看${label}详情`}>查看详情</Button>;
@@ -996,10 +995,10 @@ export function HallPage() {
           setCategory("全部");
         }}
       />
-      <div className="ml-auto flex shrink-0 items-center gap-1.5">
+      <HeaderActions>
         <Popover><PopoverTrigger render={<Button variant={query ? "secondary" : "ghost"} size="icon-sm" aria-label="搜索服务" title="搜索服务" />}><Search className="size-4" /></PopoverTrigger><PopoverContent align="end"><Input aria-label="搜索服务名称或办理事项" placeholder="搜索服务名称或办理事项" value={query} onChange={e=>setQuery(e.target.value)} /><Button variant="ghost" size="sm" disabled={!query} onClick={()=>setQuery("")}>清除搜索</Button></PopoverContent></Popover>
         <Button size="sm" variant={onlyFavorite ? "secondary" : "outline"} aria-label="常用服务" aria-pressed={onlyFavorite} title="常用服务" onClick={() => setOnlyFavorite(v=>!v)}><Star className={cn("size-3.5", onlyFavorite && "fill-current text-primary")} /><span className="max-[1000px]:hidden">常用服务</span></Button>
-      </div>
+      </HeaderActions>
       </HeaderControls>
       {hallCategories[role].length > 1 && <div className="mb-5 flex flex-wrap gap-1.5" role="group" aria-label="服务分类">
         {hallCategories[role].map(item => <Button key={item} size="sm" disabled={role === 2 && (item === "人事服务" || item === "人才管理")} variant={category === item ? "secondary" : "ghost"} aria-pressed={category === item} onClick={() => { setCategory(item); }}>{item}</Button>)}
