@@ -334,3 +334,10 @@
   background: color-mix(in oklch, var(--foreground) 26%, transparent);
   border-radius: 999px;
 }
+
+:root[data-askhr-appearance="glass"] [data-slot="skill-category"][aria-pressed="true"] {
+  background: var(--foreground);
+  border-color: var(--foreground);
+  color: var(--background);
+  box-shadow: none;
+}

@@ -213,3 +213,9 @@
   --growth-canvas: color-mix(in oklch, var(--color-neutral-500) 7%, var(--card));
   background-color: var(--growth-canvas);
 }
+
+[data-slot="skill-category"][aria-pressed="true"] {
+  background: var(--foreground);
+  border-color: var(--foreground);
+  color: var(--background);
+}
