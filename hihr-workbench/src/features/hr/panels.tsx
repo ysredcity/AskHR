@@ -1,3 +1,4 @@
+import { GrowthPlanPanel } from "@/features/growth/plan-panel";
 import {SalaryHtmlBody} from "@/features/compensation/html-artifact";
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ export function HRFileBody({
 }: {
   view: Extract<PanelView, { type: "file-preview" }>;
 }) {
+  if (view.fileType === "成长计划" || view.fileName.endsWith(".growth.html")) return <GrowthPlanPanel key={view.fileName} id={view.content} final={view.fileName.endsWith(".final.growth.html")} />;
   if (view.fileName.endsWith(".html")) return <SalaryHtmlBody key={view.fileName} view={view} />;
   return view.fileName === "休假申请单.hr" ? (
     <div className="min-h-0 flex-1 overflow-y-auto p-7">
@@ -27,7 +29,7 @@ export function HRFileToolbar({
 }: {
   view: Extract<PanelView, { type: "file-preview" }>;
 }) {
-  if (view.fileName.endsWith(".html")) return null;
+  if (view.fileType === "成长计划" || view.fileName.endsWith(".html")) return null;
   return (
     <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
       <FileText className="size-4 text-muted-foreground" />

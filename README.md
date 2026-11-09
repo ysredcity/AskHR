@@ -1,5 +1,7 @@
 # AskHR · 企业人资 AI 工作台
 
+> 产品同事用 Codex、WorkBuddy 等智能体继续迭代？先看 [快速上手.md](./快速上手.md)。
+
 AskHR 是面向企业内部人资业务的桌面端交互原型，以统一 AI 对话入口连接个人、团队、HR 数据运营及传统业务服务。当前为同一套 React 工程，包含 AskHR 主应用与产品逻辑上的「薪酬智参」子应用。
 
 当前发布版本：**1.1.1**，Git 标签 `v1.1.1`，发布记录见 [GitHub Release](https://github.com/ysredcity/AskHR/releases/tag/v1.1.1)。历史版本 [v1.1.0](https://github.com/ysredcity/AskHR/releases/tag/v1.1.0)、[v1.0.0](https://github.com/ysredcity/AskHR/releases/tag/v1.0.0) 保留为回退点。
@@ -60,6 +62,7 @@ npm run dev -- --host 127.0.0.1 --port 5174
 HR-Portal/
 ├── README.md                     # 项目入口说明
 ├── CONTEXT.md                    # 决策历史与变更记录
+├── 快速上手.md                    # 产品同事用智能体迭代原型的上手说明
 ├── AGENTS.md / CLAUDE.md         # AI 工具入口，指向 skill
 ├── skills/askhr-prototype/       # 开发 skill：当前规则、检查与截图脚本、发版步骤
 ├── docs/                         # 需求、方案、汇报与实施计划
@@ -124,12 +127,12 @@ npm run gate
 
 ## 团队协作
 
-先读 [askhr-prototype skill](./skills/askhr-prototype/SKILL.md) 和 [CONTEXT.md](./CONTEXT.md) 再进行较大调整。使用 AI 工具开发时，工具会通过根目录的 `AGENTS.md` / `CLAUDE.md` 找到 skill。基线为提交 `4ba5b2b`，标签 `baseline/askhr-2026-11-04`，位于 `main`。后续样式探索使用独立分支，例如：
+先读 [askhr-prototype skill](./skills/askhr-prototype/SKILL.md) 和 [CONTEXT.md](./CONTEXT.md) 再进行较大调整。使用 AI 工具开发时，工具会通过根目录的 `AGENTS.md` / `CLAUDE.md` 找到 skill。每位成员在自己的个人分支 `user/<名字>` 上连续迭代，非必要不合并到 `main`；`main` 只在明确要求合并或发版时更新。例如：
 
 ```sh
-git switch main
+git checkout main
 git pull --ff-only
-git switch -c experiment/glass-next
+git checkout -b user/zhangsan
 ```
 
 提交中说明改动场景、验证方式及影响范围；重大决策同步更新 `CONTEXT.md`。不要将依赖目录、构建产物、临时截图、`.env` 或凭据提交到仓库。

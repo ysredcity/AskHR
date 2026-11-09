@@ -1,11 +1,20 @@
-# 验证、提交与发版
+# 分支、验证、提交与发版
 
 ## 目录
 
+- [分支](#分支)
 - [验证](#验证)
 - [截图自检](#截图自检)
 - [提交](#提交)
 - [发版](#发版)
+
+## 分支
+
+- 每位用户固定一个个人分支，命名 `user/<名字>`（如 `user/zhangsan`），所有需求都在这个分支上连续迭代。
+- 开工时：已在个人分支就直接工作；在 `main` 上就切到该用户的个人分支——本地没有时先查远端 `origin/user/<名字>`，都没有再从 `main` 创建。不知道用户名字时问一次。
+- **不把个人分支合并到 `main`**，也不主动提醒、建议合并。只有两种情况会动 `main`：用户明确要求合并；用户明确要求发版（见下文）。
+- 想获取 `main` 上的新内容时，由用户提出，再把 `main` 合并进个人分支（`git merge main`）。有冲突时停下说明冲突位置，不自行取舍别人的改动。
+- 不切换到、不修改别人的个人分支。
 
 ## 验证
 
@@ -29,7 +38,7 @@ lint 现有 2 条与本工程改动无关的 warning（`components/ui/tabs.tsx`�
 
 ## 截图自检
 
-先启动开发服务：
+开发服务按 SKILL.md「改动流程」第 6 步自动保持运行；没在运行时先启动：
 
 ```sh
 cd hihr-workbench
@@ -58,14 +67,13 @@ node ../skills/askhr-prototype/scripts/shoot.mjs [选项]
 
 ## 提交
 
-- 分支命名：样式探索 `experiment/*`，功能 `feature/*`，缺陷 `fix/*`。基于最新 `main` 创建。
+- 只在用户明确要求时 commit；push 只推送到用户自己的远端分支（`git push -u origin user/<名字>`）。改完后不主动询问「要不要提交 / 推送 / 合并」。
 - 提交说明写清：改动场景、验证方式、影响范围。
 - 不提交 `node_modules`、`dist`、`preview/`、截图、`.env` 或凭据。只 `git add` 本次改动的文件，不用 `git add -A`。
-- **只有用户明确要求时才 commit、push 或合并**。
 
 ## 发版
 
-发版 = 改版本号 → 提交并合入 `main` → 打标签 → 推送 → 在 GitHub 创建 Release。只有用户明确说「发个 x.y.z」之类时才做。
+发版 = 改版本号 → 提交并合入 `main` → 打标签 → 推送 → 在 GitHub 创建 Release。只有用户明确说「发个 x.y.z」之类时才做；这是唯一会主动合入 `main` 的流程，通常由仓库管理员执行。
 
 **版本号规则**（`x.y.z`）：以样式和交互小改为主的版本递增 z；新增页面、场景或较大能力递增 y；大的产品结构调整递增 x。用户指定了版本号时以用户为准。
 
@@ -77,7 +85,7 @@ node ../skills/askhr-prototype/scripts/shoot.mjs [选项]
    - `hihr-workbench/package-lock.json` 顶部两处 `version`（第 3 行与 `packages[""]` 下）；
    - `README.md` 顶部「当前发布版本」一行（并把上一版本列为回退点）；
    - `CONTEXT.md` 的「当前基线」表和「已提交的重要节点」表。
-3. 提交到功能分支，`git checkout main && git merge --ff-only <分支>`。不能快进时停下来说明，不要强推。
+3. 提交到当前分支，`git checkout main && git merge --ff-only <分支>`。不能快进时停下来说明，不要强推。
 4. `git tag -a vX.Y.Z -m "AskHR X.Y.Z"`。
 5. `git push origin main vX.Y.Z`。
 6. 创建 Release：

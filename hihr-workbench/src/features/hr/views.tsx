@@ -1,3 +1,4 @@
+import { growthIntent } from "@/features/growth/data";
 import { ServiceCategoryAnchors } from "./service-category-anchors";
 import CompensationApp from "@/features/compensation/compensation-app";
 import { EmployeeSurface, EmployeeHighlight } from "./employee-visual";
@@ -44,6 +45,7 @@ import { HeaderTarget, useHR } from "./context";
 import type { Leave } from "./store";
 import {
   development,
+  employeePerformance,
   employeeTabs,
   hallRoles,
   hallCategories,
@@ -308,6 +310,7 @@ export function Tasks({
   );
 }
 export function EmployeePage() {
+  const { composeBusiness } = useHR();
   const {
     employeeTab,
     setEmployeeTab,
@@ -424,6 +427,9 @@ export function EmployeePage() {
       {employeeTab === "新员工专区" && (
         <>
           <EmployeeHighlight type="welcome" />
+          <Section title="新员工成长计划" subtitle="把岗位目标变成可以开始的行动，学习、实践与导师支持一起安排。">
+            <Button className="mt-4 bg-foreground text-background hover:bg-foreground/85" onClick={() => composeBusiness(growthIntent)}><Sparkles className="size-4" />制定成长计划</Button>
+          </Section>
           <Section
             title="融入计划"
             subtitle="回顾入职阶段的重要任务与融入进度。"
@@ -658,11 +664,11 @@ export function EmployeePage() {
         <>
           <EmployeeHighlight type="performance" />
           <div className="mb-6 grid grid-cols-3 gap-4">
-            <Metric showDetails label="2026 年第三季度" value="A" detail="绩效结果已发布" />
+            <Metric showDetails label={employeePerformance.period} value={employeePerformance.rating} detail="绩效结果已发布" />
             <Metric
               showDetails
               label="目标完成率"
-              value="108"
+              value={String(employeePerformance.completion)}
               unit="%"
               detail="3 项目标已完成"
             />
@@ -696,7 +702,7 @@ export function EmployeePage() {
           <div className="mt-6">
             <Section title="主管反馈" subtitle="李伟 · 2026-10-20">
               <p className="text-sm leading-7">
-                能够从真实业务问题出发推进产品落地，跨团队协作主动。下一阶段建议进一步提升数据验证与规模化推广能力。
+                {employeePerformance.feedback}
               </p>
               <div className="mt-4">
                 <Tasks onlyId="T01" />

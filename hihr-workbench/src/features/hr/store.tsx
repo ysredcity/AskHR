@@ -1,3 +1,4 @@
+import type { GrowthSession } from "@/features/growth/data";
 import { businessContexts, type BusinessIntent } from "./business-intent";
 import {initialProjects, type Project} from "@/features/compensation/data";
 import { useState, type ReactNode } from "react";
@@ -41,6 +42,7 @@ function syncRouteToUrl(next: Route) {
   window.history.replaceState(null, "", `${pathname}${search}${target}`);
 }
 function useStore() {
+  const [growthSessions, setGrowthSessions] = useState<Record<string, GrowthSession>>({});
   const [salaryProjects, setSalaryProjects] = useState<Project[]>(initialProjects);
   const [salaryLaunch, setSalaryLaunch] = useState<string | null>(null);
   const [salaryActive, setSalaryActive] = useState<string | null>(null);
@@ -72,6 +74,7 @@ function useStore() {
     Record<string, import("@/agent-ui/immersive/contracts").ConversationScene[]>
   >({});
   return {
+    growthSessions, setGrowthSessions,
     salaryProjects, setSalaryProjects, salaryActive, setSalaryActive, salaryLaunch, setSalaryLaunch,
     route,
     setRoute,

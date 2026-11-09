@@ -40,6 +40,9 @@ hihr-workbench/
 | 首页、推荐分类 | `src/components/agent-layout/new-conversation-page.tsx` |
 | 首页业务轮播 | `src/features/hr/personal-briefing.tsx` |
 | 页面 header 的 Tabs 与动作 | `src/features/hr/header-controls.tsx`（`HeaderControls`、`HeaderTabs`、`HeaderActions`） |
+| 新员工成长计划数据、共用流程 | `src/features/growth/data.ts`、`flow.tsx` |
+| 成长计划页面：内容库与生成、章节、对话框 | `src/features/growth/catalog.ts`、`plan-panel.tsx`、`plan-sections.tsx`、`plan-dialogs.tsx` |
+| 产物面板内的对话框挂载点 | `src/components/agent-layout/panel-portal.ts`（`usePanelPortal()`），配合 `DialogContent` 的 `container` |
 | 专家、个人数据、服务目录、推荐内容 | `src/features/hr/data.ts` |
 | 业务状态、页面触发 AI | `src/features/hr/store.tsx`、`context.ts`、`business-intent.ts` |
 | 我的成长、服务大厅、待办页面 | `src/features/hr/views.tsx` |

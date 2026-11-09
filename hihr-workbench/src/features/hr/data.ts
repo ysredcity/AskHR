@@ -27,6 +27,11 @@ export const person = {
   date: "2022-06-20",
   city: "青岛",
   email: "leshan.wang@example.com",
+  supervisor: "李伟",
+};
+export const employeePerformance = {
+  period: "2026 年第三季度", rating: "A", completion: 108,
+  feedback: "能够从真实业务问题出发推进产品落地，跨团队协作主动。下一阶段建议进一步提升数据验证与规模化推广能力。",
 };
 export const suggestions = [
   "查一下我的年假余额",
@@ -51,7 +56,7 @@ export const skillCategories = [
   ] },
   { id: "performance", label: "绩效发展", skills: [
     { name: "绩效回顾", description: "梳理绩效目标、进展与反馈", prompt: "帮我回顾本季度绩效目标与反馈" },
-    { name: "发展计划", description: "回顾个人发展计划，明确下一步行动", prompt: "帮我回顾个人发展计划并给出下一步行动" },
+    { name: "新员工成长计划", description: "结合岗位目标，制定学习、实践与导师辅导计划", prompt: "帮我制定新员工成长计划" },
     {"name": "目标梳理", "description": "整理阶段目标，明确优先级与衡量标准", "prompt": "帮我梳理下一阶段绩效目标"},
     {"name": "学习规划", "description": "结合发展目标制定学习安排", "prompt": "结合我的发展计划推荐学习安排"},
     {"name": "反馈准备", "description": "整理工作成果，准备绩效沟通要点", "prompt": "帮我准备绩效反馈沟通提纲"},

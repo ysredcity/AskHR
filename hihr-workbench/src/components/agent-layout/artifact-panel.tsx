@@ -1,8 +1,10 @@
+import { useState } from "react"
 import { Minimize2, MoveDiagonal, X } from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { IconButton } from "./icon-button"
+import { PanelPortalContext } from "./panel-portal"
 import { panelContainers, type PanelContainer } from "./panel-registry"
 import type { PanelTab, PanelView } from "./panel-types"
 
@@ -24,14 +26,17 @@ type ArtifactPanelProps = {
 }
 
 export function ArtifactPanel({ activeTabId, fullscreen, hideTabs = false, onClose, onCloseTab, onNavigate, onSelectTab, onToggleFullscreen, tabs }: ArtifactPanelProps) {
+  const [portalHost, setPortalHost] = useState<HTMLDivElement | null>(null)
   const view = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0]
   if (!view) return null
   const { Body, Toolbar } = panelContainers[view.type] as PanelContainer
   const globalActions = <><PanelHeaderAction label={fullscreen ? "退出全屏" : "全屏"} onClick={onToggleFullscreen}>{fullscreen ? <Minimize2 /> : <MoveDiagonal />}</PanelHeaderAction><PanelHeaderAction label="关闭" onClick={onClose}><X /></PanelHeaderAction></>
-  return <aside aria-label="独立面板" data-slot="artifact-panel" data-fullscreen={fullscreen || undefined} className="flex h-full min-w-80 flex-1 flex-col bg-background">
+  return <aside aria-label="独立面板" data-slot="artifact-panel" data-fullscreen={fullscreen || undefined} className="relative flex h-full min-w-80 flex-1 flex-col bg-background">
     {!hideTabs && <PanelHeader activeTabId={view.id} fullscreen={fullscreen} onClose={onClose} onCloseTab={onCloseTab} onSelectTab={onSelectTab} onToggleFullscreen={onToggleFullscreen} tabs={tabs} />}
     {Toolbar && <Toolbar view={view} actions={hideTabs ? globalActions : undefined} />}
-    <Body view={view} onNavigate={onNavigate} />
+    <PanelPortalContext.Provider value={portalHost}><Body view={view} onNavigate={onNavigate} /></PanelPortalContext.Provider>
+    {/* 面板内浮层挂载点：本身不拦截指针，浮层自身开启指针事件 */}
+    <div ref={setPortalHost} data-slot="panel-portal" className="pointer-events-none absolute inset-0 z-50" />
   </aside>
 }
 

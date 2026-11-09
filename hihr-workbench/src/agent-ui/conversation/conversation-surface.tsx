@@ -41,7 +41,7 @@ export function ConversationSurface({
 
   return (
     <div className={`relative flex min-h-0 flex-1 flex-col items-center overflow-hidden ${className}`}>
-      <div ref={contentRef} className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto px-4" onScroll={updateScrollButton}>
+      <div ref={contentRef} data-slot="conversation-scroll" className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto px-4" onScroll={updateScrollButton}>
         <div className={`mx-auto min-h-full w-full ${contentClassName}`}>{children}</div>
       </div>
       <footer className="relative w-full shrink-0 px-4">

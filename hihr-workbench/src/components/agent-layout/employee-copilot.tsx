@@ -1,3 +1,4 @@
+import { GrowthFlow } from "@/features/growth/flow";
 import { DiagnosisFlow } from "@/features/compensation/diagnosis-flow";
 import { createPanoramaScene } from "@/features/hr/business-intent";
 import { createDraftScene } from "./conversation-data";
@@ -79,7 +80,7 @@ export function EmployeeCopilot({ mode, onModeChange, config, conversation, hist
       {!history.length && !pinnedHistory.length && <p className="px-3 py-4 text-sm text-muted-foreground">暂无历史对话</p>}
     </div>}
     <div className={cn("min-h-0 flex-1 flex-col", historyOpen ? "hidden" : "flex")} inert={historyOpen}>
-    {salaryProject?.diagnosis ? <DiagnosisFlow key={salaryProject.id} project={salaryProject} onOpenArtifact={onOpenArtifact} /> : conversation?.scene ? <ConversationSection
+    {conversation && hr.growthSessions[conversation.id] ? <GrowthFlow id={conversation.id} onOpenArtifact={onOpenArtifact} /> : salaryProject?.diagnosis ? <DiagnosisFlow key={salaryProject.id} project={salaryProject} onOpenArtifact={onOpenArtifact} /> : conversation?.scene ? <ConversationSection
       createFollowUpScene={conversation.businessContext ? message => createPanoramaScene(message, conversation.businessContext!, conversation.expert, []) ?? { ...createDraftScene(message), id: `draft-${crypto.randomUUID()}` } : undefined}
       key={conversation.id}
       scene={conversation.scene}

@@ -1,3 +1,4 @@
+import { GrowthFlow } from "@/features/growth/flow";
 import { createPanoramaScene } from "@/features/hr/business-intent";
 import {DiagnosisFlow} from "@/features/compensation/diagnosis-flow";
 import {analysisScene} from "@/features/compensation/data";
@@ -71,7 +72,7 @@ export function ConversationPage({
   onRename,
   pinned,
 }: ConversationPageProps) {
-  const {salaryProjects} = useHR();
+  const {salaryProjects, growthSessions} = useHR();
   const salaryProject = salaryProjects.find(p=>p.id===conversation.id);
   const salarySubapp = !!salaryProject && salaryProject.source !== "askhr";
   const mobile = useMediaQuery("(max-width: 659px)");
@@ -160,7 +161,7 @@ export function ConversationPage({
         )}
       </header>
 
-      {salaryProject?.diagnosis ? <DiagnosisFlow project={salaryProject} onOpenArtifact={onOpenArtifact} /> : <ConversationSection
+      {growthSessions[conversation.id] ? <GrowthFlow id={conversation.id} onOpenArtifact={onOpenArtifact} /> : salaryProject?.diagnosis ? <DiagnosisFlow project={salaryProject} onOpenArtifact={onOpenArtifact} /> : <ConversationSection
         createFollowUpScene={salaryProject ? message=>analysisScene(`salary-follow-${crypto.randomUUID()}`,message,salaryProject.title) : conversation.businessContext ? message => createPanoramaScene(message, conversation.businessContext!, conversation.expert, []) ?? createDraftScene(message) : undefined}
         key={conversation.id}
         approvalStatus={conversation.approvalStatus}

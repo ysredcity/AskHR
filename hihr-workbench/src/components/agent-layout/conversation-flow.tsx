@@ -629,7 +629,7 @@ function MessageAttachmentList({
           <AttachmentContent>
             <AttachmentTitle>{file.name}</AttachmentTitle>
             <AttachmentDescription>
-              {fileTypeLabel(file.name)} · {formatFileSize(file.size)}
+              {file.target?.type === "file-preview" && file.target.fileName.endsWith(".growth.html") ? "HTML 网页 · 成长计划" : `${fileTypeLabel(file.name)} · ${formatFileSize(file.size)}`}
             </AttachmentDescription>
           </AttachmentContent>
           {file.target && onOpenArtifact && (

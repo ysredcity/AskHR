@@ -207,3 +207,9 @@
 [data-slot="workspace-scroll"]:is(:hover, :has(:focus-visible)) {
   scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent) transparent;
 }
+
+/* 成长计划页：实底浅灰画布，经典与 Glass 主题保持一致 */
+[data-slot="growth-plan-page"] {
+  --growth-canvas: color-mix(in oklch, var(--color-neutral-500) 7%, var(--card));
+  background-color: var(--growth-canvas);
+}

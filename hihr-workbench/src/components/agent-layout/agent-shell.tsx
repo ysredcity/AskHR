@@ -1,3 +1,4 @@
+import { createGrowthSession, isGrowthRequest } from "@/features/growth/data";
 import { createPanoramaScene } from "@/features/hr/business-intent";
 import { createSalaryProject, isSalaryDiagnosis } from "@/features/compensation/data";
 import { parseLeaveDates } from "@/features/hr/data";
@@ -384,16 +385,18 @@ export function AgentShell({
       attachments[0]?.name ||
       context[0]?.label ||
       "新对话";
+    const growthId = isGrowthRequest(content) ? `growth-${crypto.randomUUID()}` : null;
+    if (growthId) hr.setGrowthSessions(items => ({ ...items, [growthId]: createGrowthSession(content) }));
     const scene = createPanoramaScene(content, context, expert, attachments) ?? (/调休|病假|产假|半天/.test(content)
       ? createDraftScene(content, expert, attachments)
       : (resolveSceneForInput(content, scenes, attachments) ??
         createDraftScene(content, expert, attachments)));
     const newConversation: Conversation = {
-      id: `draft-${Date.now()}`,
+      id: growthId ?? `draft-${Date.now()}`,
       title: title.slice(0, 36),
       initialMessage: content,
       businessContext: context.some(item => item.id === "business-source") ? context : undefined,
-      expert,
+      expert: growthId ? "人才发展专家" : expert,
       scene,
       approvalStatus: deriveApprovalStatus(scene),
     };
