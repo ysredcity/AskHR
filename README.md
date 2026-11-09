@@ -6,7 +6,7 @@ AskHR 是面向企业内部人资业务的桌面端交互原型，以统一 AI �
 
 当前发布版本：**1.1.1**，Git 标签 `v1.1.1`，发布记录见 [GitHub Release](https://github.com/ysredcity/AskHR/releases/tag/v1.1.1)。历史版本 [v1.1.0](https://github.com/ysredcity/AskHR/releases/tag/v1.1.0)、[v1.0.0](https://github.com/ysredcity/AskHR/releases/tag/v1.0.0) 保留为回退点。
 
-最新代码已包含新员工成长计划（`81b6dea`，2026-11-09 合入 `main`），尚未发布新版本。功能变更与发布状态见 [CHANGELOG.md](./CHANGELOG.md)。
+最新 main 已包含新员工成长计划（`81b6dea`）及默认 Glass 主题、分类胶囊选中态优化（`7bdb773`，2026-11-09 合入），尚未发布新版本。功能变更与发布状态见 [CHANGELOG.md](./CHANGELOG.md)。
 
 仓库：[ysredcity/AskHR](https://github.com/ysredcity/AskHR)（私有）。继续开发时的当前规则见 [askhr-prototype skill](./skills/askhr-prototype/SKILL.md)，决策历史与变更记录见 [CONTEXT.md](./CONTEXT.md)。本文反映当前代码；早期需求、计划及子目录说明可能保留旧名称或旧交互，发生冲突时以当前代码和本文为准。
 
