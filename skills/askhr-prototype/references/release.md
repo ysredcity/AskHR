@@ -67,6 +67,8 @@ node ../skills/askhr-prototype/scripts/shoot.mjs [选项]
 
 ## 提交
 
+- 功能合并后同步维护根目录 CHANGELOG.md 的未发布条目，以及 CONTEXT.md 的更新日期、当前功能基线和重要提交节点；README 区分最新 main 与正式发布版本。仅合并不修改发布版本号、不创建 Release。
+
 - 只在用户明确要求时 commit；push 只推送到用户自己的远端分支（`git push -u origin user/<名字>`）。改完后不主动询问「要不要提交 / 推送 / 合并」。
 - 提交说明写清：改动场景、验证方式、影响范围。
 - 不提交 `node_modules`、`dist`、`preview/`、截图、`.env` 或凭据。只 `git add` 本次改动的文件，不用 `git add -A`。
