@@ -46,7 +46,7 @@ export const targetPaths = [
 export type Conditions = { goal: string; targetRole: string; direction: TargetDirection; days: number; hours: number; role: string };
 export type Action = { id: string; title: string; detail: string; resource: string; outcome: string; support: string; manual?: boolean };
 export type Plan = { page?: import("./catalog").GrowthPage; conditions: Conditions; actions: Action[]; revision: number; start: string };
-export type GrowthSession = { clarified?: Conditions; authorization?: "granted" | "declined"; prompt: string; phase: "profile" | "authorization" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
+export type GrowthSession = { replyHistory?: Record<string, ConversationScene["turns"][number]>; clarified?: Conditions; authorization?: "granted" | "declined"; prompt: string; phase: "profile" | "authorization" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
 export const authorizationSteps = [
   { title: "核对已确认的规划条件", detail: "检查目标岗位、计划周期与学习投入，明确本次成长分析的范围。" },
   { title: "判断补充分析所需数据", detail: "对照目标岗位与已有档案，判断会议记录及文档协作数据可补充的分析依据；此时不读取敏感信息。" },
@@ -144,10 +144,10 @@ function baseGrowthScene(id: string, state: GrowthSession): ConversationScene {
       })) : complete ? [{ id: `${id}-revision-${index}`, title: "核对调整要求与计划状态", detail: entry.answer, status: "completed" }] : [],
     },
     productBlock: canSubmit && index === entries.length - 1 ? { id: `${id}-questions-${index}`, type: "follow-up-suggestions", data: { suggestions: suggestions.map(question => ({ ...question, label: question.content })) } } : undefined,
-    assistant: state.running ? undefined : { content: entry.answer + (canSubmit && index === entries.length - 1 ? submitAsk : ""), timestamp: "刚刚", attachments: complete && index === entries.length - 1 ? [{ id: `${id}-plan`, name: previewName, size: 4096, target: growthArtifact(id) }] : undefined },
+    assistant: state.running ? undefined : { content: entry.answer + (canSubmit && index === entries.length - 1 ? submitAsk : ""), timestamp: "刚刚", attachments: complete && (index === 0 || index === entries.length - 1) ? [{ id: `${id}-plan`, name: previewName, size: 4096, target: growthArtifact(id) }] : undefined },
   })) };
 }
-export function growthScene(id: string, state: GrowthSession): ConversationScene {
+function currentGrowthScene(id: string, state: GrowthSession): ConversationScene {
   if (!state.clarified) return baseGrowthScene(id, state);
   const initial = baseGrowthScene(id, { ...state, conditions: state.clarified, phase: "profile", running: false, plan: undefined, messages: [] }).turns[0];
   const checkingAuthorization = state.phase === "authorization" && state.running;
@@ -164,6 +164,15 @@ export function growthScene(id: string, state: GrowthSession): ConversationScene
   };
   const continuation = state.authorization ? baseGrowthScene(id, state).turns.map((turn, i) => i === 0 ? { ...turn, id: `${id}-generation`, user: { content: state.authorization === "granted" ? "同意授权并继续" : "仅使用已有档案继续" }, assistant: turn.assistant ? { ...turn.assistant, content: turn.assistant.content.replace(`${growthProfileSummary}\n\n`, "") } : undefined } : turn) : [];
   return { id, turns: [initial, authorization, ...continuation] };
+}
+
+/** 已完成回复按轮保留：后续提交或修订只追加，不重写历史正文与附件。 */
+export function growthScene(id: string, state: GrowthSession): ConversationScene {
+  const scene = currentGrowthScene(id, state);
+  return { ...scene, turns: scene.turns.map(turn => {
+    const previous = state.replyHistory?.[turn.id];
+    return previous ? { ...previous, productBlock: turn.productBlock } : turn;
+  }) };
 }
 
 function submitTurn(id: string, state: GrowthSession, entry: GrowthSession["messages"][number], index: number, last: boolean): ConversationScene["turns"][number] {

@@ -16,6 +16,16 @@ import { authorizationSteps, buildPlan, growthArtifact, growthScene, isSubmitInt
 export function GrowthFlow({ id, onOpenArtifact }: { id: string; onOpenArtifact: (target: ArtifactTarget) => void }) {
   const { growthSessions, setGrowthSessions, sessionDrafts, setSessionDrafts, sessionContexts, setSessionContexts } = useHR();
   const state = growthSessions[id];
+  useEffect(() => {
+    const completed = growthScene(id, state).turns.filter(turn => turn.assistant && turn.execution.status === "completed" && !state.replyHistory?.[turn.id]);
+    if (!completed.length) return;
+    setGrowthSessions(all => {
+      const current = all[id];
+      const history = { ...current.replyHistory };
+      for (const turn of completed) if (!history[turn.id]) history[turn.id] = structuredClone(turn);
+      return { ...all, [id]: { ...current, replyHistory: history } };
+    });
+  }, [id, state, setGrowthSessions]);
   const update = (change: Partial<GrowthSession>) => setGrowthSessions(all => ({ ...all, [id]: { ...all[id], ...change } }));
   useEffect(() => {
     if (state.profileReady && !state.running && !state.plan && !state.clarified && !state.missing.length) setGrowthSessions(all => ({ ...all, [id]: { ...all[id], clarified: { ...all[id].conditions }, phase: "authorization", running: true, progress: 0 } }));
