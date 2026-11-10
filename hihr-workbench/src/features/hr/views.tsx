@@ -1047,8 +1047,8 @@ export function HallPage() {
                       className="pointer-events-none absolute right-0 h-7 min-w-14 bg-foreground px-2 text-xs text-background opacity-0 hover:bg-foreground/90 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
                       onClick={() => {
                         setHomeExpert(s.agent!.expert);
-                        setHomeAgentCategory(s.agent!.category ?? null);
-                        setHomeDraft("");
+                        setHomeAgentCategory(s.id === "compensation" ? null : s.agent!.category ?? null);
+                        setHomeDraft(s.id === "compensation" ? "查询显示事业部薪酬情况" : "");
                         setHomeContext([]);
                         window.dispatchEvent(new CustomEvent("hihr:compose"));
                       }}
