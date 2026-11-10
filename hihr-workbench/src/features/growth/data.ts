@@ -46,7 +46,12 @@ export const targetPaths = [
 export type Conditions = { goal: string; targetRole: string; direction: TargetDirection; days: number; hours: number; role: string };
 export type Action = { id: string; title: string; detail: string; resource: string; outcome: string; support: string; manual?: boolean };
 export type Plan = { page?: import("./catalog").GrowthPage; conditions: Conditions; actions: Action[]; revision: number; start: string };
-export type GrowthSession = { clarified?: Conditions; authorization?: "granted" | "declined"; prompt: string; phase: "profile" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
+export type GrowthSession = { clarified?: Conditions; authorization?: "granted" | "declined"; prompt: string; phase: "profile" | "authorization" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
+export const authorizationSteps = [
+  { title: "核对已确认的规划条件", detail: "检查目标岗位、计划周期与学习投入，明确本次成长分析的范围。" },
+  { title: "判断补充分析所需数据", detail: "对照目标岗位与已有档案，判断会议记录及文档协作数据可补充的分析依据；此时不读取敏感信息。" },
+  { title: "整理敏感信息用途与授权范围", detail: "限定数据仅用于本次岗位差距和成长建议分析，准备授权确认；用户也可仅使用已有档案继续。" },
+];
 export const growthSteps = ["核对岗位与已有基础", "安排阶段目标与行动", "补充学习资源和导师支持", "检查时间与目标覆盖"];
 export const growthQuestions = [
   { id: "growth-light", content: "能帮我把成长计划安排得更轻量一些吗？" },
@@ -145,10 +150,17 @@ function baseGrowthScene(id: string, state: GrowthSession): ConversationScene {
 export function growthScene(id: string, state: GrowthSession): ConversationScene {
   if (!state.clarified) return baseGrowthScene(id, state);
   const initial = baseGrowthScene(id, { ...state, conditions: state.clarified, phase: "profile", running: false, plan: undefined, messages: [] }).turns[0];
+  const checkingAuthorization = state.phase === "authorization" && state.running;
   const authorization: ConversationScene["turns"][number] = {
     id: `${id}-authorization`, expert: "人才发展专家", user: { content: "" },
-    execution: { status: "completed", summary: state.authorization ? "已记录数据授权选择" : "需要确认数据授权", steps: [] },
-    assistant: { timestamp: "刚刚", content: state.authorization === "granted" ? "已同意授权，将结合敏感信息进行分析，仅用于本次成长计划。" : state.authorization === "declined" ? "未授权敏感信息访问，将仅基于已有档案和已确认条件制定计划。" : "目标岗位与时间安排已确认。接下来需要分析岗位差距并制定成长计划。为使分析更具体，是否允许使用你的敏感信息（会议记录与文档协作数据）？授权仅用于本次成长分析；不同意也可基于已有档案继续。" },
+    execution: {
+      status: checkingAuthorization ? "running" : "completed",
+      summary: checkingAuthorization ? "正在核对规划条件与数据授权范围" : state.authorization ? "已记录数据授权选择" : "已明确数据用途，需要确认授权",
+      duration: checkingAuthorization ? undefined : "约2秒",
+      reasoning: { id: `${id}-authorization-basis`, content: "先核对已确认的岗位与时间安排，再判断现有档案之外需要补充的分析依据，明确敏感数据的用途和最小范围后请求授权；未获得许可前不读取敏感信息。", running: checkingAuthorization },
+      steps: authorizationSteps.map((step, i) => ({ ...step, id: `${id}-authorization-step-${i}`, status: !checkingAuthorization || i < state.progress ? "completed" : i === state.progress ? "running" : "pending" })),
+    },
+    assistant: checkingAuthorization ? undefined : { timestamp: "刚刚", content: state.authorization === "granted" ? "已同意授权，将结合敏感信息进行分析，仅用于本次成长计划。" : state.authorization === "declined" ? "未授权敏感信息访问，将仅基于已有档案和已确认条件制定计划。" : "目标岗位与时间安排已确认。接下来需要分析岗位差距并制定成长计划。为使分析更具体，是否允许使用你的敏感信息（会议记录与文档协作数据）？授权仅用于本次成长分析；不同意也可基于已有档案继续。" },
   };
   const continuation = state.authorization ? baseGrowthScene(id, state).turns.map((turn, i) => i === 0 ? { ...turn, id: `${id}-generation`, user: { content: state.authorization === "granted" ? "同意授权并继续" : "仅使用已有档案继续" }, assistant: turn.assistant ? { ...turn.assistant, content: turn.assistant.content.replace(`${growthProfileSummary}\n\n`, "") } : undefined } : turn) : [];
   return { id, turns: [initial, authorization, ...continuation] };
