@@ -158,6 +158,7 @@ function getStreamingExecution(
 
 export function ConversationFlow({
   hideUserMessage = false,
+  renderAssistantSupplement,
   assistantSupplement,
   approvalStatus,
   scene,
@@ -168,6 +169,7 @@ export function ConversationFlow({
   renderProductBlock,
 }: {
   hideUserMessage?: boolean;
+  renderAssistantSupplement?: (index: number) => ReactNode;
   assistantSupplement?: ReactNode;
   approvalStatus?: "pending" | "approved" | "rejected";
   scene: ConversationScene;
@@ -247,8 +249,8 @@ export function ConversationFlow({
           <ConversationTurn
             key={turn.id}
             turn={turn}
-            hideUserMessage={hideUserMessage}
-            assistantSupplement={index === scene.turns.length - 1 ? assistantSupplement : undefined}
+            hideUserMessage={hideUserMessage || !turn.user.content}
+            assistantSupplement={renderAssistantSupplement?.(index) ?? (index === scene.turns.length - 1 ? assistantSupplement : undefined)}
             approvalStatus={approvalStatus}
             identity={identity}
             experts={experts}

@@ -233,6 +233,6 @@ export function MentoringSection({ page, commit, locked, readOnly, id }: Omit<Se
     </div>
     <label className="block space-y-1.5 text-sm"><span className="block text-muted-foreground">具体措施</span>
       <Textarea rows={3} value={draft.measures} disabled={locked} readOnly={readOnly} aria-label="具体措施" onChange={e => setDraft({ ...draft, measures: e.target.value })} onBlur={() => save(draft, "具体措施")} /></label>
-    {!readOnly && <p className="text-xs text-muted-foreground">修改在输入框失去焦点后保存；提交计划后按辅导频次提醒。</p>}
+    {!readOnly && <p className="text-xs text-muted-foreground">修改在输入框失去焦点后保存；计划审批通过并生效后，按辅导频次提醒。</p>}
   </Chapter>;
 }

@@ -46,7 +46,7 @@ export const targetPaths = [
 export type Conditions = { goal: string; targetRole: string; direction: TargetDirection; days: number; hours: number; role: string };
 export type Action = { id: string; title: string; detail: string; resource: string; outcome: string; support: string; manual?: boolean };
 export type Plan = { page?: import("./catalog").GrowthPage; conditions: Conditions; actions: Action[]; revision: number; start: string };
-export type GrowthSession = { prompt: string; phase: "profile" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
+export type GrowthSession = { clarified?: Conditions; authorization?: "granted" | "declined"; prompt: string; phase: "profile" | "plan"; profileReady: boolean; conditions: Conditions; missing: string[]; plan?: Plan; previous?: Plan; messages: { user: string; answer: string; kind?: "submit" }[]; pending?: Plan; submitting?: boolean; submitStep?: number; submitted?: { plan: Plan; at: string }; running: boolean; progress: number; opened: boolean };
 export const growthSteps = ["核对岗位与已有基础", "安排阶段目标与行动", "补充学习资源和导师支持", "检查时间与目标覆盖"];
 export const growthQuestions = [
   { id: "growth-light", content: "能帮我把成长计划安排得更轻量一些吗？" },
@@ -89,22 +89,22 @@ export function phaseRange(index: number, total: number, days: number) {
   return `第 ${Math.floor(index * days / total) + 1}–${Math.floor((index + 1) * days / total)} 天`;
 }
 export const previewName = "成长计划_预览版.html";
-export const finalName = "成长计划_正式版.html";
+export const finalName = "成长计划_审批稿.html";
 export function growthArtifact(id: string): ArtifactTarget {
   return { type: "file-preview", title: previewName, fileName: `${id}.growth.html`, fileType: "HTML", content: id };
 }
-/** 提交后的正式版：只读快照，与预览版共用页面渲染 */
+/** 提交审批后的审批稿：只读快照，审批通过后计划才生效。 */
 export function growthFinalArtifact(id: string): ArtifactTarget {
   return { type: "file-preview", title: finalName, fileName: `${id}.final.growth.html`, fileType: "HTML", content: id };
 }
-export const submitSteps = ["校验计划内容与时间安排", "提交成长计划到人才发展系统", "生成正式版成长计划", "设置学习、任务与辅导提醒"];
-const submitDetails = ["检查各项学习、挑战任务、多岗历练与辅导设置是否完整，时间是否落在计划周期内。", "以当前最新修订提交成长计划，提交人为本人。", "固化本次提交的计划内容，生成只读的正式版。", "按各项起止时间与辅导频次登记提醒和推送节点。"];
+export const submitSteps = ["校验计划内容与时间安排", "创建成长计划审批流", "生成只读审批稿", "确认审批状态与生效条件"];
+const submitDetails = ["检查各项学习、挑战任务、多岗历练与辅导设置是否完整，时间是否落在计划周期内。", "以当前定稿方案创建审批流，发起人为本人，提交后进入待审批状态。", "固化本次提交审批的计划内容，生成只读审批稿供核对。", "计划审批通过后正式生效，再按生效计划安排学习、实践和辅导提醒；当前尚未生效。"];
 export const isSubmitIntent = (input: string) => {
   const text = input.trim();
   return (/提交/.test(text) && !/不|别|暂缓|先不|取消|怎么|如何|吗/.test(text)) || /^(好的?|可以|确认|没问题|同意|行)[。！!～~]?$/.test(text);
 };
 export const submittedCurrent = (state: GrowthSession) => !!state.submitted && !!state.plan && state.submitted.plan.revision === state.plan.revision;
-export function growthScene(id: string, state: GrowthSession): ConversationScene {
+function baseGrowthScene(id: string, state: GrowthSession): ConversationScene {
   const complete = !!state.plan && !state.running;
   const profiling = state.phase === "profile";
   const initial = complete ? "已将成长目标、学习实践和导师支持整合为一份计划。可以先查看整体安排，再按需要调整。\n\n任职与评价依据来自场景资料，目标、周期和投入以确认条件为准；导师默认为直属上级，辅导尚未预约。" : "补充关键信息后即可生成完整计划，也可以直接采用建议值。";
@@ -117,8 +117,8 @@ export function growthScene(id: string, state: GrowthSession): ConversationScene
   ];
   const entries: GrowthSession["messages"] = [{ user: state.prompt, answer: `${growthProfileSummary}\n\n${initial}` }, ...state.messages];
   const canSubmit = complete && !state.pending && !state.submitting && !submittedCurrent(state);
-  const submitAsk = state.submitted ? "\n\n计划在提交后有新的修改。确认无误后回复「提交」，我会将最新版本重新提交到系统。" : "\n\n计划确认无误后，回复「提交」即可将成长计划提交到系统；提交后生成正式版，并按计划节点为你提醒与推送。";
-  const suggestions = [{ id: "growth-submit", content: state.submitted ? "确认无误，重新提交成长计划" : "确认无误，提交成长计划" }, ...growthQuestions.slice(0, 2)];
+  const submitAsk = state.submitted ? "\n\n计划在提交审批后有新的修改。确认定稿后回复「提交审批」，我会为最新方案重新发起审批；审批通过后才正式生效。" : "\n\n计划确认定稿后，回复「提交审批」即可为成长计划创建审批流。审批通过后计划正式生效，再按计划节点安排提醒与推送。";
+  const suggestions = [{ id: "growth-submit", content: state.submitted ? "确认定稿，重新提交成长计划审批" : "确认定稿，提交成长计划审批" }, ...growthQuestions.slice(0, 2)];
   return { id, turns: entries.map((entry, index) => entry.kind === "submit" ? submitTurn(id, state, entry, index, index === entries.length - 1) : ({
     id: `${id}-turn-${index}`, expert: "人才发展专家", user: { content: entry.user },
     execution: {
@@ -142,6 +142,18 @@ export function growthScene(id: string, state: GrowthSession): ConversationScene
     assistant: state.running ? undefined : { content: entry.answer + (canSubmit && index === entries.length - 1 ? submitAsk : ""), timestamp: "刚刚", attachments: complete && index === entries.length - 1 ? [{ id: `${id}-plan`, name: previewName, size: 4096, target: growthArtifact(id) }] : undefined },
   })) };
 }
+export function growthScene(id: string, state: GrowthSession): ConversationScene {
+  if (!state.clarified) return baseGrowthScene(id, state);
+  const initial = baseGrowthScene(id, { ...state, conditions: state.clarified, phase: "profile", running: false, plan: undefined, messages: [] }).turns[0];
+  const authorization: ConversationScene["turns"][number] = {
+    id: `${id}-authorization`, expert: "人才发展专家", user: { content: "" },
+    execution: { status: "completed", summary: state.authorization ? "已记录数据授权选择" : "需要确认数据授权", steps: [] },
+    assistant: { timestamp: "刚刚", content: state.authorization === "granted" ? "已同意授权，将结合敏感信息进行分析，仅用于本次成长计划。" : state.authorization === "declined" ? "未授权敏感信息访问，将仅基于已有档案和已确认条件制定计划。" : "目标岗位与时间安排已确认。接下来需要分析岗位差距并制定成长计划。为使分析更具体，是否允许使用你的敏感信息（会议记录与文档协作数据）？授权仅用于本次成长分析；不同意也可基于已有档案继续。" },
+  };
+  const continuation = state.authorization ? baseGrowthScene(id, state).turns.map((turn, i) => i === 0 ? { ...turn, id: `${id}-generation`, user: { content: state.authorization === "granted" ? "同意授权并继续" : "仅使用已有档案继续" }, assistant: turn.assistant ? { ...turn.assistant, content: turn.assistant.content.replace(`${growthProfileSummary}\n\n`, "") } : undefined } : turn) : [];
+  return { id, turns: [initial, authorization, ...continuation] };
+}
+
 function submitTurn(id: string, state: GrowthSession, entry: GrowthSession["messages"][number], index: number, last: boolean): ConversationScene["turns"][number] {
   const running = !!state.submitting && last;
   const step = state.submitStep ?? 0;
@@ -149,7 +161,7 @@ function submitTurn(id: string, state: GrowthSession, entry: GrowthSession["mess
     id: `${id}-turn-${index}`, expert: "人才发展专家", user: { content: entry.user },
     execution: {
       status: running ? "running" : "completed", duration: running ? undefined : "约2秒",
-      summary: running ? "正在提交成长计划" : "成长计划已提交",
+      summary: running ? "正在提交成长计划审批" : "审批流程已创建，等待审批",
       steps: submitSteps.map((title, i) => ({ id: `${id}-submit-${index}-${i}`, title, detail: submitDetails[i],
         status: !running || i < step ? "completed" as const : i === step ? "running" as const : "pending" as const,
         actions: !running && i === 2 ? [{ label: finalName, type: "file" as const, target: growthFinalArtifact(id) }] : undefined })),

@@ -1,7 +1,7 @@
 import { GrowthReadOnlyContext } from "./read-only-context";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, CircleCheck, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock3, Pencil } from "lucide-react";
 import { useHR } from "@/features/hr/context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export function GrowthPlanPanel({ id, final = false }: { id: string; final?: boo
     return () => { observer.disconnect(); node.removeEventListener("scroll", measure); };
   }, [hasPlan]);
 
-  if (!plan) return <p className="p-6 text-sm text-muted-foreground">{final ? "成长计划尚未提交。" : "计划尚未生成，请返回对话继续。"}</p>;
+  if (!plan) return <p className="p-6 text-sm text-muted-foreground">{final ? "成长计划尚未提交审批。" : "计划尚未生成，请返回对话继续。"}</p>;
   const page = reconcilePage(plan);
   const locked = !!state.pending || !!state.submitting;
   const submitted = !final && submittedCurrent(state);
@@ -100,8 +100,8 @@ export function GrowthPlanPanel({ id, final = false }: { id: string; final?: boo
       <header className={`${wrap} space-y-4 pb-6 pt-6`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="bg-card/70">{final ? "正式版" : "预览版"}</Badge>
-            {(final || submitted) && <span className="inline-flex items-center gap-1 text-xs text-success-foreground"><CircleCheck className="size-3.5" />已提交{state.submitted ? ` · ${state.submitted.at}` : ""}</span>}
+            <Badge variant="outline" className="bg-card/70">{final ? "审批稿" : "预览版"}</Badge>
+            {(final || submitted) && <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3.5" />待审批 · 尚未生效{state.submitted ? ` · ${state.submitted.at}` : ""}</span>}
           </div>
           <span className="text-xs tabular-nums text-muted-foreground">修订 {plan.revision}</span>
         </div>
@@ -123,14 +123,14 @@ export function GrowthPlanPanel({ id, final = false }: { id: string; final?: boo
 
     {/* 章节目录：滚动到顶部后吸顶，随滚动高亮当前章节 */}
     <nav aria-label="计划步骤" className="sticky top-0 z-10 bg-(--growth-canvas)/90 py-2 backdrop-blur">
-      <div className={wrap}><div className="relative overflow-hidden rounded-lg bg-card shadow-xs"><Button variant="ghost" size="icon-sm" aria-label="上一页步骤" className={`absolute inset-y-0 left-0 z-10 my-auto rounded-none bg-card ${paging.left ? "" : "hidden"}`} onClick={() => tabsRef.current?.scrollBy({ left: -tabsRef.current.clientWidth * .8, behavior: "smooth" })}><ChevronLeft className="size-4" /></Button><div ref={tabsRef} className="min-w-0 overflow-x-auto [scrollbar-width:none]"><Tabs value={active} onValueChange={value => jump(value as ChapterKey)}>
+      <div className={wrap}><div className="relative overflow-hidden rounded-lg bg-card shadow-xs"><Button variant="ghost" size="icon-sm" aria-label="上一页步骤" className={`absolute inset-y-0 left-0 z-10 my-auto rounded-none bg-card hover:bg-[color-mix(in_oklch,var(--card)_94%,var(--foreground))] dark:hover:bg-[color-mix(in_oklch,var(--card)_94%,var(--foreground))] ${paging.left ? "" : "hidden"}`} onClick={() => tabsRef.current?.scrollBy({ left: -tabsRef.current.clientWidth * .8, behavior: "smooth" })}><ChevronLeft className="size-4" /></Button><div ref={tabsRef} className="min-w-0 overflow-x-auto [scrollbar-width:none]"><Tabs value={active} onValueChange={value => jump(value as ChapterKey)}>
         <TabsList className="h-auto w-max justify-start gap-0.5 bg-card p-1 shadow-xs [scrollbar-width:none]">{chapters.map(([key, title], i) => <span key={key} className="flex shrink-0 items-center">
           {i > 0 && <ChevronRight aria-hidden className="size-3.5 text-muted-foreground/60" />}
           <TabsTrigger value={key} data-step={key} className="group/step h-7 shrink-0 gap-1.5 px-2 data-active:bg-muted">
             <span aria-hidden className="grid size-4.5 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-semibold tabular-nums text-muted-foreground group-data-active/step:bg-primary group-data-active/step:text-primary-foreground">{i + 1}</span>{final ? finalChapterTitles[key] : title}
           </TabsTrigger>
         </span>)}</TabsList>
-      </Tabs></div><Button variant="ghost" size="icon-sm" aria-label="下一页步骤" className={`absolute inset-y-0 right-0 z-10 my-auto rounded-none bg-card ${paging.right ? "" : "hidden"}`} onClick={() => tabsRef.current?.scrollBy({ left: tabsRef.current.clientWidth * .8, behavior: "smooth" })}><ChevronRight className="size-4" /></Button></div></div>
+      </Tabs></div><Button variant="ghost" size="icon-sm" aria-label="下一页步骤" className={`absolute inset-y-0 right-0 z-10 my-auto rounded-none bg-card hover:bg-[color-mix(in_oklch,var(--card)_94%,var(--foreground))] dark:hover:bg-[color-mix(in_oklch,var(--card)_94%,var(--foreground))] ${paging.right ? "" : "hidden"}`} onClick={() => tabsRef.current?.scrollBy({ left: tabsRef.current.clientWidth * .8, behavior: "smooth" })}><ChevronRight className="size-4" /></Button></div></div>
     </nav>
 
     <div className={wrap}>
@@ -146,8 +146,8 @@ export function GrowthPlanPanel({ id, final = false }: { id: string; final?: boo
   </div>
     {!final && <footer className="shrink-0 border-t bg-card px-5 py-3" data-slot="growth-plan-footer">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
-        <p className="min-w-0 flex-1 text-xs leading-5 text-muted-foreground">{final ? "正式版为提交时的计划快照。" : submitted ? "当前版本已提交；再次修改后需重新提交。" : "确认计划后提交，提交内容可在对话中确认。"}</p>
-        {!final && <div className="flex shrink-0 gap-2"><Button size="sm" disabled={locked || submitted} onClick={() => setSessionDrafts(all => ({ ...all, [id]: "确认无误，提交成长计划" }))}>提交</Button></div>}
+        <p className="min-w-0 flex-1 text-xs leading-5 text-muted-foreground">{final ? "审批稿为提交审批时的计划快照，审批通过后才生效。" : submitted ? "当前版本待审批，审批通过后生效；修改后需重新提交审批。" : "定稿后提交审批，审批通过后计划正式生效。"}</p>
+        {!final && <div className="flex shrink-0 gap-2"><Button size="sm" disabled={locked || submitted} onClick={() => setSessionDrafts(all => ({ ...all, [id]: "确认定稿，提交成长计划审批" }))}>提交审批</Button></div>}
       </div>
     </footer>}
     <Dialog open={!final && !!overview} onOpenChange={open => !open && setOverview(null)}><DialogContent className="max-h-[85dvh] overflow-y-auto" data-component-style="default"><DialogHeader><DialogTitle>编辑计划概览</DialogTitle><DialogDescription>修改岗位、周期与学习投入，同步调整计划内容，可撤销。</DialogDescription></DialogHeader>{overview && <form className="space-y-4" onSubmit={event => {
